@@ -1,0 +1,48 @@
+@media print {
+
+    /* Hide non-printable elements */
+    .print\\:hidden {
+        display: none !important;
+    }
+
+    /* Remove shadows and borders for print */
+    .print\\:border-0 {
+        border: 0 !important;
+    }
+
+    .print\\:shadow-none {
+        box-shadow: none !important;
+    }
+
+    /* Ensure proper page breaks */
+    @page {
+        size: A4;
+        margin: 2cm;
+    }
+
+    /* Prevent page breaks inside elements */
+    table,
+    figure,
+    img {
+        page-break-inside: avoid;
+    }
+
+    /* Adjust colors for print */
+    body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* Hide navigation, headers, and footers */
+    header,
+    nav,
+    .sidebar {
+        display: none !important;
+    }
+
+    /* Make sure content fills the page */
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+}

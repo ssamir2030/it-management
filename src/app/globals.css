@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Professional Light Theme - Navy, Gray, White, Blue */
+    --background: 210 40% 98%;
+    /* Soft cool white/gray */
+    --foreground: 222 47% 11%;
+    /* Deep Navy */
+
+    --card: 0 0% 100%;
+    /* White */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    /* Professional Vibrant Blue */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 20% 96%;
+    /* Light Gray */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    /* Muted Gray */
+
+    --accent: 210 20% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Professional Dark Theme - Deep Navy, Gray, Blue */
+    --background: 222 47% 11%;
+    /* Deep Navy Background */
+    --foreground: 210 40% 98%;
+    /* White/Light Gray Text */
+
+    --card: 217 33% 17%;
+    /* Lighter Navy for cards */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    /* Bright Blue for contrast */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 224 76% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+
+
+  /* Arabic Text Rendering Fix - Ensure connected letters */
+  html {
+    font-feature-settings: "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent rubber-banding on top/bottom scroll which triggers flicker in Chromium */
+    overscroll-behavior: none;
+  }
+
+  body {
+    overscroll-behavior: none;
+  }
+
+  *[lang="ar"],
+  [dir="rtl"],
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  div,
+  button,
+  a,
+  label,
+  .card-title,
+  .card-description {
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+    font-feature-settings: "liga" 1, "calt" 1 !important;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Glassmorphism Utilities for WOW factor */
+  /* Added GPU acceleration hints to fix Chromium flickering */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .dark .glass {
+    @apply bg-slate-900/70 backdrop-blur-md border border-white/10 shadow-sm;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl hover:bg-card/80;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Fix for Chromium-based browsers (Chrome, Edge) blur flickering */
+  [class*="backdrop-blur"],
+  [class*="blur-"] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-800 dark:from-blue-400 dark:via-indigo-400 dark:to-slate-200;
+  }
+
+
+
+  /* Reduce motion for users who prefer it (helps with Chromium issues) */
+  @media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Responsive utilities */
+  .responsive-padding {
+    @apply px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8 lg:py-10;
+  }
+
+  .responsive-gap {
+    @apply gap-2 sm:gap-3 md:gap-4 lg:gap-6;
+  }
+
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Mobile card padding adjustments */
+  @media (max-width: 640px) {
+    .card {
+      @apply rounded-lg;
+    }
+
+    .card-header {
+      @apply p-4;
+    }
+
+    .card-content {
+      @apply p-4 pt-0;
+    }
+  }
+
+  /* Responsive table */
+  @media (max-width: 768px) {
+    .responsive-table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .responsive-table table {
+      min-width: 600px;
+    }
+  }
+
+  /* Hide elements at specific breakpoints */
+  .hide-mobile {
+    @apply hidden sm:block;
+  }
+
+  .hide-tablet {
+    @apply hidden md:block;
+  }
+
+  .show-mobile-only {
+    @apply block sm:hidden;
+  }
+
+  /* Better touch targets for mobile */
+  @media (max-width: 640px) {
+
+    button,
+    a,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Improve scrolling on mobile */
+  .scroll-smooth {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Safe area insets for notched devices */
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

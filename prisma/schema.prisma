@@ -1,0 +1,1586 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String           @id @default(cuid())
+  name             String?
+  email            String?          @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             String           @default("USER")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  accounts         Account[]
+  articles         Article[]
+  notifications    Notification[]
+  sessions         Session[]
+  ticketsCreated   Ticket[]         @relation("CreatedTickets")
+  ticketsAssigned  Ticket[]         @relation("AssignedTickets")
+  receivedMessages ChatMessage[]    @relation("ReceivedMessages")
+  sentMessages     ChatMessage[]    @relation("SentMessages")
+  ticketMessages   TicketMessage[]  @relation("TicketMessagesSent")
+  lastChatClear    DateTime?
+  permissions      UserPermission[]
+  deletedAt        DateTime?
+  deletedBy        String?
+  createdReminders  Reminder[]      @relation("CreatedReminders")
+  assignedReminders Reminder[]      @relation("AssignedReminders")
+  systemLogs        SystemLog[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Employee {
+  id                     String                  @id @default(cuid())
+  name                   String
+  identityNumber         String                  @unique
+  email                  String                  @unique
+  phone                  String?
+  jobTitle               String?
+  departmentId           String?
+  locationId             String?
+  deletedAt              DateTime?
+  deletedBy              String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  password               String?
+  image                  String?
+  signature              String?
+  assets                 Asset[]
+  softwareLicenses       SoftwareLicense[]
+  technicalDetails       AssetTechnicalDetails[]
+  consumableTransactions ConsumableTransaction[]
+  custodyItems           CustodyItem[]
+  documents              Document[]
+  location               Location?               @relation(fields: [locationId], references: [id])
+  department             Department?             @relation(fields: [departmentId], references: [id])
+  telecomServices        TelecomService[]
+  notifications          EmployeeNotification[]
+  requests               EmployeeRequest[]
+  roomBookings           RoomBooking[]
+  messages               ChatMessage[]
+  equipmentBookings      EquipmentBooking[]
+  chatStatus             String                  @default("BOT") // BOT, HUMAN
+  lastChatClear          DateTime?
+  floorPlanX             Float? // Percentage 0-100
+  floorPlanY             Float? // Percentage 0-100
+  EmployeeOnboarding     EmployeeOnboarding?
+  visits                 Visit[]
+
+  managerId    String?
+  manager      Employee?  @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates Employee[] @relation("ManagerSubordinates")
+
+  @@index([departmentId])
+  @@index([locationId])
+}
+
+// Advanced Permissions System
+model ScreenPermission {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  category    String
+  icon        String?
+  href        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userPermissions UserPermission[]
+
+  @@map("screen_permissions")
+}
+
+model UserPermission {
+  id           String   @id @default(cuid())
+  userId       String
+  permissionId String
+  grantedBy    String?
+  grantedAt    DateTime @default(now())
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission ScreenPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@map("user_permissions")
+}
+
+
+model ServiceCategory {
+  id          String        @id @default(cuid())
+  nameAr      String
+  nameEn      String?
+  description String?
+  icon        String?       // Lucide icon name
+  slug        String        @unique
+  items       ServiceItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("service_categories")
+}
+
+model ServiceItem {
+  id               String            @id @default(cuid())
+  nameAr           String
+  nameEn           String?
+  description      String?
+  categoryId       String
+  category         ServiceCategory   @relation(fields: [categoryId], references: [id])
+  slaHours         Int?
+  cost             Float?            @default(0)
+  approvalRequired Boolean           @default(true)
+  icon             String?
+  requests         EmployeeRequest[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([categoryId])
+  @@map("service_items")
+}
+
+model EmployeeRequest {
+  id                     String            @id @default(cuid())
+  type                   String
+  serviceItemId          String?           // Optional link to Service Catalog
+  details                String?
+  status                 String            @default("PENDING")
+  subject                String?
+  priority               String            @default("NORMAL")
+  assignedTo             String?
+  expectedCompletionDate DateTime?
+  completedAt            DateTime?
+  adminNotes             String?
+  rejectionReason        String?
+  employeeId             String
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  feedback               String?
+  rating                 Int?
+  employee               Employee          @relation(fields: [employeeId], references: [id])
+  serviceItem            ServiceItem?      @relation(fields: [serviceItemId], references: [id])
+  timeline               RequestTimeline[]
+  attachments            RequestAttachment[]
+  sla                    RequestSLA?
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([serviceItemId])
+  @@map("employee_requests")
+}
+
+model RequestAttachment {
+  id        String          @id @default(cuid())
+  fileName  String
+  fileUrl   String
+  fileType  String
+  fileSize  Int
+  requestId String
+  createdAt DateTime        @default(now())
+  request   EmployeeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  @@index([requestId])
+  @@map("request_attachments")
+}
+
+model RequestTimeline {
+  id          String          @id @default(cuid())
+  requestId   String
+  status      String
+  title       String
+  description String?
+  actorName   String?
+  createdAt   DateTime        @default(now())
+  request     EmployeeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@map("request_timelines")
+}
+
+model Asset {
+  id                   String                 @id @default(cuid())
+  tag                  String                 @unique
+  serialNumber         String?
+  name                 String
+  type                 String
+  model                String?
+  manufacturer         String?
+  purchaseDate         DateTime?
+  warrantyExpiry       DateTime?
+  status               String                 @default("AVAILABLE")
+  employeeId           String?
+  locationId           String?
+  processor            String?
+  ram                  String?
+  storage              String?
+  operatingSystem      String?
+  specifications       String?
+  notes                String?
+  ipAddress            String? // For RDP/VNC
+  anydeskId            String? // For AnyDesk
+  dwServiceId          String? // For manual DWService ID
+  
+  // Financial & Depreciation
+  price                Float?  @default(0)
+  salvageValue         Float?  @default(0) // Value at the end of lifespan
+  lifespan             Int?    @default(36) // In months (3 years default)
+  floorPlanX           Float? // Percentage 0-100
+  floorPlanY           Float? // Percentage 0-100
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  deletedAt            DateTime?
+  deletedBy            String?
+  location             Location?              @relation(fields: [locationId], references: [id])
+  employee             Employee?              @relation(fields: [employeeId], references: [id])
+  custodyItems         CustodyItem[]
+  documents            Document[]
+  remoteAgent          RemoteAgent?
+  technicalDetails     AssetTechnicalDetails?
+  maintenanceSchedules MaintenanceSchedule[]
+  rackId               String?
+  uPosition            Int?
+  uHeight              Int                    @default(1)
+  rack                 Rack?                  @relation(fields: [rackId], references: [id])
+
+  categoryId String?
+  category   AssetCategory? @relation(fields: [categoryId], references: [id])
+  audits     AssetAudit[]
+
+  @@index([employeeId])
+  @@index([locationId])
+  @@index([status])
+  @@index([type])
+  @@index([rackId])
+  @@index([categoryId])
+  
+  // Lifecycle Management
+  @@index([warrantyExpiry])
+  
+  softwareLicenses SoftwareLicense[]
+}
+
+model SoftwareLicense {
+  id              String    @id @default(cuid())
+  name            String
+  key             String?   // License key (optional/encrypted)
+  type            String    // SUBSCRIPTION, PERPETUAL, FREE
+  seats           Int       @default(1)
+  usedSeats       Int       @default(0)
+  purchaseDate    DateTime?
+  expiryDate      DateTime?
+  cost            Float?    @default(0)
+  
+  supplierId      String?
+  supplier        Supplier? @relation(fields: [supplierId], references: [id])
+  
+  notes           String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  assets          Asset[]   // Assigned to assets
+  employees       Employee[] // Assigned to employees (User-based licenses like O365)
+  
+  // Predictive Maintenance
+  healthScore      Float?  @default(100)
+  
+  @@index([expiryDate])
+  @@index([supplierId])
+}
+
+model InventoryItem {
+  id                 String              @id @default(cuid())
+  name               String
+  sku                String?
+  category           String
+  manufacturer       String?
+  model              String?
+  serialNumber       String?
+  barcode            String?
+  quantity           Int                 @default(0)
+  minQuantity        Int                 @default(5)
+  unitPrice          Float?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  purchaseOrderItems PurchaseOrderItem[]
+}
+
+model Ticket {
+  id               String          @id @default(cuid())
+  title            String
+  description      String
+  category         String          @default("OTHER")
+  status           String          @default("OPEN")
+  priority         String          @default("MEDIUM")
+  remoteAccessId   String?
+  remoteAccessPass String?
+  contactPhone     String?
+  assignedToId     String?
+  createdById      String?
+  employeeId       String?
+  employeeName     String?
+  employeeEmail    String?
+  employeePhone    String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        User?           @relation("CreatedTickets", fields: [createdById], references: [id])
+  assignedTo       User?           @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  messages         TicketMessage[]
+  ticketSLA        TicketSLA?
+}
+
+model Location {
+  id             String          @id @default(cuid())
+  name           String
+  address        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  deletedBy      String?
+  googleMapsUrl  String?
+  latitude       Float?
+  longitude      Float?
+  floorPlanImage String?
+  layoutData     String?         // JSON string for furniture/walls
+  assets         Asset[]
+  employees      Employee[]
+  networkDevices NetworkDevice[]
+  racks          Rack[]
+  subnets        Subnet[]
+  equipment      Equipment[]     @relation("EquipmentLocation")
+}
+
+model Department {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  managerName String?
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  deletedBy   String?
+  employees   Employee[]
+  floorPlanX  Float? // Percentage 0-100
+  floorPlanY  Float? // Percentage 0-100
+}
+
+model CustodyItem {
+  id           String         @id @default(cuid())
+  name         String
+  description  String?
+  employeeId   String
+  assetId      String?
+  assignedDate DateTime       @default(now())
+  returnDate   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  asset        Asset?         @relation(fields: [assetId], references: [id])
+  employee     Employee       @relation(fields: [employeeId], references: [id])
+  categoryId   String?
+  category     AssetCategory? @relation(fields: [categoryId], references: [id])
+
+  isAcknowledged Boolean   @default(false)
+  acknowledgedAt DateTime?
+
+  @@index([categoryId])
+}
+
+model TelecomService {
+  id            String    @id @default(cuid())
+  type          String
+  provider      String
+  accountNumber String?
+  phoneNumber   String?
+  planDetails   String?
+  cost          Float?
+  billingCycle  String?
+  employeeId    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  employee      Employee? @relation(fields: [employeeId], references: [id])
+}
+
+model ArticleCategory {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  articles    Article[]
+}
+
+model Article {
+  id          String          @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?
+  categoryId  String
+  authorId    String
+  views       Int             @default(0)
+  isPublished Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  author      User            @relation(fields: [authorId], references: [id])
+  category    ArticleCategory @relation(fields: [categoryId], references: [id])
+}
+
+model AssetCategory {
+  id          String  @id @default(cuid())
+  nameAr      String
+  nameEn      String
+  description String?
+  type        String  @default("OTHER") // IT, FURNITURE, GENERAL, OTHER
+
+  // New fields for enhancements
+  icon   String? // Lucide icon name
+  prefix String? // Asset tag prefix (e.g., LAP)
+
+  // Hierarchy
+  parentId String?
+  parent   AssetCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children AssetCategory[] @relation("CategoryHierarchy")
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  assets       Asset[]
+  custodyItems CustodyItem[]
+}
+
+model InventoryAudit {
+  id        String        @id @default(cuid())
+  name      String
+  startDate DateTime      @default(now())
+  endDate   DateTime?
+  status    String        @default("OPEN") // OPEN, CLOSED, ARCHIVED
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  records   AuditRecord[]
+}
+
+model AuditRecord {
+  id        String         @id @default(cuid())
+  auditId   String
+  audit     InventoryAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  assetTag  String
+  scannedAt DateTime       @default(now())
+  status    String // FOUND, MISSING, WRONG_LOCATION
+  notes     String?
+
+  @@index([auditId])
+  @@index([assetTag])
+}
+
+model SLA {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  responseTime   Int
+  resolutionTime Int
+  priority       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+
+model RequestSLA {
+  id         String          @id @default(cuid())
+  requestId  String          @unique
+  breachTime DateTime
+  isBreached Boolean         @default(false)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  request    EmployeeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+}
+
+
+model ConsumableCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  consumables Consumable[]
+}
+
+model Consumable {
+  id             String                  @id @default(cuid())
+  name           String
+  description    String?
+  categoryId     String?
+  quantity       Int                     @default(0)
+  minQuantity    Int                     @default(5)
+  imageUrl       String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  category       ConsumableCategory?     @relation(fields: [categoryId], references: [id])
+  transactions   ConsumableTransaction[]
+  
+  // Backwards compatibility/Migration fields (optional, but effectively replacing old fields)
+  // Old 'category' string field is removed/replaced by relation
+}
+
+model ConsumableTransaction {
+  id           String     @id @default(cuid())
+  consumableId String
+  employeeId   String?
+  type         String     // "IN" (Restock) or "OUT" (Checkout)
+  quantity     Int
+  notes        String?
+  createdAt    DateTime   @default(now())
+  consumable   Consumable @relation(fields: [consumableId], references: [id])
+  employee     Employee?  @relation(fields: [employeeId], references: [id])
+}
+
+model AssetTechnicalDetails {
+  id               String    @id @default(uuid())
+  computerName     String
+  domainName       String
+  brand            String
+  processor        String
+  ram              String
+  storage          String
+  serialNumber     String
+  macAddress       String
+  pcUserName       String
+  management       String
+  supportId        String
+  os               String
+  osKey            String
+  office           String
+  officeKey        String
+  installationDate DateTime
+  assetId          String    @unique
+  asset            Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  employeeId       String?
+  employee         Employee? @relation(fields: [employeeId], references: [id])
+}
+
+model NetworkDevice {
+  id               String    @id @default(uuid())
+  name             String
+  type             String
+  brand            String?
+  model            String?
+  serialNumber     String?
+  ipAddress        String?
+  macAddress       String?
+  subnetMask       String?
+  gateway          String?
+  vlan             String?
+  username         String?
+  password         String?
+  sshPort          Int?      @default(22)
+  managementUrl    String?
+  status           String    @default("ACTIVE")
+  locationId       String?
+  firmwareVersion  String?
+  installationDate DateTime?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  location         Location? @relation(fields: [locationId], references: [id])
+}
+
+model Subscription {
+  id            String   @id @default(uuid())
+  name          String
+  provider      String?
+  category      String
+  startDate     DateTime
+  renewalDate   DateTime
+  cost          Float
+  billingCycle  String
+  email         String?
+  managementUrl String?
+  userLimit     Int?
+  currentUsers  Int?     @default(0)
+  status        String   @default("ACTIVE")
+  autoRenew     Boolean  @default(true)
+  alertDays     Int      @default(30)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model License {
+  id             String    @id @default(uuid())
+  name           String
+  vendor         String?
+  version        String?
+  licenseKey     String
+  licenseType    String
+  purchaseType   String
+  purchaseDate   DateTime
+  expiryDate     DateTime?
+  cost           Float
+  totalLicenses  Int       @default(1)
+  usedLicenses   Int       @default(0)
+  status         String    @default("ACTIVE")
+  activationFile String?
+  productKey     String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model RemoteAgent {
+  id            String          @id @default(uuid())
+  assetId       String          @unique
+  dwAgentId     String          @unique
+  installCode   String
+  state         String          @default("WAITING_INSTALL")
+  osType        String?
+  agentVersion  String?
+  lastOnline    DateTime?
+  supportedApps String?
+  notes         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  asset         Asset           @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  sessions      RemoteSession[]
+}
+
+
+
+model RemoteSession {
+  id              String      @id @default(uuid())
+  agentId         String
+  supportTicketId String?
+  dwSessionId     String      @unique
+  sessionUrl      String
+  startTime       DateTime    @default(now())
+  endTime         DateTime?
+  duration        Int?
+  status          String      @default("ACTIVE")
+  purpose         String?
+  startedBy       String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  agent           RemoteAgent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id                String    @id @default(cuid())
+  title             String
+  type              String
+  category          String?
+  description       String?
+  fileName          String
+  fileSize          Int
+  fileUrl           String
+  mimeType          String?
+  documentNumber    String?
+  documentDate      DateTime?
+  expiryDate        DateTime?
+  amount            Float?
+  currency          String?   @default("SAR")
+  vendor            String?
+  contactPerson     String?
+  contactEmail      String?
+  contactPhone      String?
+  relatedAssetId    String?
+  relatedEmployeeId String?
+  status            String    @default("ACTIVE")
+  tags              String    @default("")
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  relatedEmployee   Employee? @relation(fields: [relatedEmployeeId], references: [id])
+  relatedAsset      Asset?    @relation(fields: [relatedAssetId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([documentDate])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  userName   String
+  action     String
+  entityType String
+  entityId   String
+  entityName String?
+  changes    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model CompanyProfile {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  nameAr          String
+  nameEn          String
+  taxNumber       String?
+  commercialReg   String?
+  email           String?
+  phone           String?
+  website         String?
+  addressAr       String?
+  addressEn       String?
+  logoUrl         String?
+  letterheadUrl   String?
+  stampUrl        String?
+  currency        String   @default("SAR")
+  timezone        String   @default("Asia/Riyadh")
+  fiscalYearStart String   @default("01-01")
+  dateFormat      String   @default("DD/MM/YYYY")
+
+  @@map("company_profiles")
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  type       String
+  title      String
+  message    String
+  read       Boolean  @default(false)
+  userId     String
+  entityType String?
+  entityId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model DiscoveredDevice {
+  id           String   @id @default(uuid())
+  agentKey     String?  @unique // Unique identifier for remote agent
+  ipAddress    String   @unique
+  macAddress   String?
+  hostname     String?
+  manufacturer String?
+  status       String   @default("NEW") // NEW, IGNORED, ADDED
+  lastSeen     DateTime @default(now())
+  details      String?  // JSON string for ports, os, etc
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([lastSeen])
+  @@index([agentKey])
+}
+
+// Agent Command Queue for Remote Execution
+model AgentCommand {
+  id           String   @id @default(uuid())
+  deviceId     String   // DiscoveredDevice ID or IP address
+  command      String   // PowerShell command to execute
+  status       String   @default("PENDING") // PENDING, SENT, COMPLETED, FAILED, TIMEOUT
+  result       String?  // Output from execution
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  sentAt       DateTime?
+  completedAt  DateTime?
+  createdBy    String?  // User who created the command
+
+  @@index([deviceId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("agent_commands")
+}
+
+model TicketMessage {
+  id          String             @id @default(cuid())
+  content     String
+  createdAt   DateTime           @default(now())
+  ticketId    String
+  senderId    String
+  attachments TicketAttachment[]
+  sender      User               @relation("TicketMessagesSent", fields: [senderId], references: [id])
+  ticket      Ticket             @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("ticket_messages")
+}
+
+model TicketAttachment {
+  id        String        @id @default(cuid())
+  fileName  String
+  fileUrl   String
+  fileSize  Int
+  fileType  String
+  messageId String
+  createdAt DateTime      @default(now())
+  message   TicketMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("ticket_attachments")
+}
+
+model MeetingRoom {
+  id                 String        @id @default(cuid())
+  name               String
+  nameEn             String?
+  description        String?
+  location           String
+  capacity           Int
+  floor              String?
+  hasProjector       Boolean       @default(false)
+  hasWhiteboard      Boolean       @default(false)
+  hasVideoConf       Boolean       @default(false)
+  hasScreen          Boolean       @default(false)
+  hasSoundSystem     Boolean       @default(false)
+  hasWifi            Boolean       @default(true)
+  hasAirConditioning Boolean       @default(true)
+  isActive           Boolean       @default(true)
+  isAvailable        Boolean       @default(true)
+  imageUrl           String?
+  notes              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  bookings           RoomBooking[]
+
+  @@map("meeting_rooms")
+}
+
+model RoomBooking {
+  id                    String      @id @default(cuid())
+  roomId                String
+  employeeId            String
+  title                 String
+  description           String?
+  startTime             DateTime
+  endTime               DateTime
+  meetingType           String      @default("PHYSICAL")
+  onlineMeetingUrl      String?
+  onlineMeetingId       String?
+  onlineMeetingPassword String?
+  attendees             String?
+  attendeesCount        Int         @default(0)
+  status                String      @default("PENDING")
+  notes                 String?
+  adminNotes            String?
+  sendReminder          Boolean     @default(true)
+  reminderSent          Boolean     @default(false)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  employee              Employee    @relation(fields: [employeeId], references: [id])
+  room                  MeetingRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([employeeId])
+  @@index([startTime])
+  @@index([status])
+  @@map("room_bookings")
+}
+
+model EmployeeNotification {
+  id         String    @id @default(cuid())
+  employeeId String
+  type       String
+  title      String
+  message    String
+  data       String?
+  actionUrl  String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  priority   String    @default("NORMAL")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("employee_notifications")
+}
+
+model ChatMessage {
+  id              String    @id @default(cuid())
+  content         String
+  senderId        String
+  senderType      String
+  userId          String?
+  user            User?     @relation("SentMessages", fields: [userId], references: [id])
+  recipientUserId String?
+  recipientUser   User?     @relation("ReceivedMessages", fields: [recipientUserId], references: [id])
+  employeeId      String?
+  employee        Employee? @relation(fields: [employeeId], references: [id])
+  isRead          Boolean   @default(false)
+  isBotMessage    Boolean   @default(false)
+  attachmentUrl   String?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([recipientUserId])
+  @@index([employeeId])
+  @@map("chat_messages")
+}
+
+model SoftwareCatalog {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  version         String?
+  icon            String?
+  downloadUrl     String?
+  category        String   @default("General")
+  requiresLicense Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("software_catalog")
+}
+
+model MaintenanceSchedule {
+  id                  String   @id @default(cuid())
+  assetId             String
+  frequency           String // DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY
+  description         String?
+  lastMaintenanceDate DateTime
+  nextMaintenanceDate DateTime
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  asset               Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([nextMaintenanceDate])
+  @@map("maintenance_schedules")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+  entityType String // TICKET, ASSET, REQUEST, etc.
+  entityId   String
+  authorId   String
+  authorType String // USER, EMPLOYEE
+  authorName String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([entityType, entityId])
+  @@map("comments")
+}
+
+model Supplier {
+  id            String  @id @default(cuid())
+  name          String
+  contactPerson String?
+  phone         String?
+  email         String?
+  address       String?
+  category      String?
+  taxNumber     String?
+  website       String?
+  notes         String?
+  isActive      Boolean @default(true)
+
+  // New fields for enhanced supplier management
+  rating        Float?    @default(0) // تقييم المورد (1-5)
+  totalOrders   Int       @default(0) // إجمالي عدد الطلبات
+  totalSpent    Float     @default(0) // إجمالي المصروفات
+  lastOrderDate DateTime? // آخر تاريخ طلب
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+  softwareLicenses SoftwareLicense[]
+  contracts      SupplierContract[]
+
+  @@map("suppliers")
+}
+
+model Rack {
+  id         String   @id @default(cuid())
+  name       String
+  locationId String
+  capacity   Int      @default(42)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  assets     Asset[]
+  location   Location @relation(fields: [locationId], references: [id])
+
+  @@index([locationId])
+  @@map("racks")
+}
+
+model Subnet {
+  id          String   @id @default(cuid())
+  name        String
+  cidr        String // e.g. 192.168.1.0/24
+  gateway     String?
+  vlan        Int?
+  description String?
+  locationId  String?
+  type        String   @default("WIRED") // WIRED, WIRELESS
+  ssid        String?  // Only for WIRELESS
+  securityProtocol String? // WPA2, WPA3, OPEN
+  wifiPassword String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location Location? @relation(fields: [locationId], references: [id])
+
+  @@map("subnets")
+}
+
+// Equipment Booking System
+
+// Equipment Booking System
+model Equipment {
+  id          String   @id @default(cuid())
+  name        String
+  type        String // PROJECTOR, CAMERA, LAPTOP, MICROPHONE, etc.
+  description String?
+  imageUrl    String?
+  isAvailable Boolean  @default(true)
+  locationId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location Location?          @relation("EquipmentLocation", fields: [locationId], references: [id])
+  bookings EquipmentBooking[]
+
+  @@map("equipment")
+}
+
+model EquipmentBooking {
+  id          String   @id @default(cuid())
+  equipmentId String
+  employeeId  String
+  startDate   DateTime
+  endDate     DateTime
+  purpose     String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED, RETURNED
+  adminNotes  String?
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  equipment Equipment @relation(fields: [equipmentId], references: [id])
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+
+  @@index([equipmentId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("equipment_bookings")
+}
+
+// Learning Center
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String // SECURITY, IT_BASICS, SOFTWARE, etc.
+  imageUrl    String?
+  videoUrl    String? // YouTube or other video link
+  duration    Int? // in minutes
+  isPublished Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons      Lesson[]
+  certificates Certificate[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  courseId  String
+  title     String
+  content   String?
+  videoUrl  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  quiz   Quiz?
+
+  @@index([courseId])
+  @@map("lessons")
+}
+
+model Quiz {
+  id           String   @id @default(cuid())
+  lessonId     String   @unique
+  title        String
+  questions    String // Array of { question, options, correctAnswer } (JSON string)
+  passingScore Int      @default(70)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lesson   Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  attempts QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model QuizAttempt {
+  id         String   @id @default(cuid())
+  quizId     String
+  employeeId String
+  score      Int
+  passed     Boolean
+  answers    String // Array of submitted answers (JSON string)
+  createdAt  DateTime @default(now())
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([employeeId])
+  @@map("quiz_attempts")
+}
+
+model Certificate {
+  id                String   @id @default(cuid())
+  courseId          String
+  employeeId        String
+  certificateNumber String   @unique
+  issuedAt          DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@index([courseId])
+  @@index([employeeId])
+  @@map("certificates")
+}
+
+model ExternalCertificate {
+  id             String   @id @default(cuid())
+  employeeId     String
+  title          String
+  issuer         String
+  completionDate DateTime
+  fileUrl        String?
+  status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime @default(now())
+
+  // Relation to Employee could be added if Employee model is accessible, 
+  // otherwise we can just keep the ID.
+  // employee       Employee  @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@map("external_certificates")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  type      String   @default("INFO") // INFO, WARNING, MAINTENANCE, CRITICAL
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("announcements")
+}
+
+model PrinterCatalogItem {
+  id         String  @id @default(cuid())
+  type       String // BRAND, MODEL, TONER
+  name       String
+  code       String?
+  parentId   String? // References another PrinterCatalogItem (e.g., Model's parent is Brand)
+  deviceType String? // PRINTER or COPIER (Only relevant for Brands)
+  color      String? // Black, Cyan, Magenta, Yellow (Only relevant for Toners)
+
+  parent   PrinterCatalogItem?  @relation("CatalogHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children PrinterCatalogItem[] @relation("CatalogHierarchy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([parentId])
+  @@index([deviceType])
+  @@map("printer_catalog_items")
+}
+
+model PurchaseOrder {
+  id               String    @id @default(cuid())
+  supplierId       String?
+  status           String    @default("DRAFT") // DRAFT, ORDERED, RECEIVED, CANCELLED
+  orderDate        DateTime  @default(now())
+  expectedDate     DateTime?
+  totalCost        Float     @default(0)
+  currency         String    @default("SAR")
+  notes            String?
+  linkedRequestIds String? // JSON array of employee request IDs linked to this PO
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  supplier Supplier?           @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String  @id @default(cuid())
+  purchaseOrderId String
+  inventoryItemId String?
+  description     String
+  quantity        Int
+  unitPrice       Float
+  totalPrice      Float
+
+  purchaseOrder PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+
+  @@map("purchase_order_items")
+}
+
+// Employee Onboarding Workflow
+model EmployeeOnboarding {
+  id         String @id @default(cuid())
+  employeeId String @unique
+  status     String @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, CANCELLED
+
+  // Tasks stored as JSON string
+  tasks String @default("[]") // Array of { id, name, completed, completedAt, notes }
+
+  startDate   DateTime  @default(now())
+  completedAt DateTime?
+  assignedTo  String? // Admin user handling the onboarding
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("employee_onboardings")
+}
+
+
+
+
+
+model AssetAudit {
+  id        String   @id @default(cuid())
+  assetId   String
+  status    String   // VERIFIED, MISSING, DAMAGED
+  notes     String?
+  auditDate DateTime @default(now())
+  asset     Asset    @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+}
+
+
+model KnowledgeCategory {
+  id          String             @id @default(cuid())
+  nameAr      String
+  nameEn      String?
+  description String?
+  icon        String?            // Lucide icon name
+  slug        String             @unique
+  articles    KnowledgeArticle[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@map("knowledge_categories")
+}
+
+model KnowledgeArticle {
+  id          String            @id @default(cuid())
+  title       String
+  content     String
+  categoryId  String
+  category    KnowledgeCategory @relation(fields: [categoryId], references: [id])
+  authorId    String?           // User ID
+  isPublished Boolean           @default(false)
+  views       Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([categoryId])
+  @@map("knowledge_articles")
+}
+
+model TicketSLA {
+  id          String   @id @default(cuid())
+  ticketId    String   @unique
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  status      String   // PENDING, COMPLETED, BREACHED
+  breachTime  DateTime
+  startTime   DateTime @default(now())
+  priority    String
+  
+  isBreached  Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([breachTime])
+  @@index([isBreached])
+  @@map("ticket_slas")
+}
+
+// Visitor Management System
+model Visitor {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  company     String?
+  photoUrl    String?
+  identityType String? // NATIONAL_ID, PASSPORT
+  identityNo   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  visits      Visit[]
+  
+  @@map("visitors")
+}
+
+model Visit {
+  id          String    @id @default(cuid())
+  visitorId   String
+  hostId      String?
+  visitor     Visitor   @relation(fields: [visitorId], references: [id])
+  host        Employee? @relation(fields: [hostId], references: [id])
+  
+  purpose     String?
+  checkIn     DateTime?
+  checkOut    DateTime?
+  expectedArrival DateTime @default(now())
+  
+  status      String    @default("PLANNED") // PLANNED, ACTIVE, COMPLETED, CANCELLED, REJECTED
+  badgeNumber String?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([visitorId])
+  @@index([hostId])
+  @@map("visits")
+}
+
+model Reminder {
+  id          String    @id @default(cuid())
+  type        String    // WARRANTY_EXPIRY, MAINTENANCE_DUE, CONTRACT_RENEWAL, LICENSE_RENEWAL, CUSTOM
+  title       String
+  description String?
+  dueDate     DateTime
+  entityType  String?
+  entityId    String?
+  priority    String    @default("MEDIUM")
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  
+  createdById   String
+  createdBy     User      @relation("CreatedReminders", fields: [createdById], references: [id])
+  assignedToId  String?
+  assignedTo    User?     @relation("AssignedReminders", fields: [assignedToId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("reminders")
+}
+
+model SupplierContract {
+  id              String   @id @default(cuid())
+  supplierId      String
+  contractNumber  String?
+  title           String   // e.g. "SLA Agreement 2026"
+  description     String?
+  startDate       DateTime
+  endDate         DateTime
+  status          String   @default("ACTIVE") // ACTIVE, EXPIRED, TERMINATED
+  
+  // SLA Details
+  slaResponseTime Int?     // in hours
+  slaResolutionTime Int?   // in hours
+  
+  documentUrl     String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  supplier        Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  
+  @@index([supplierId])
+  @@index([status])
+  @@map("supplier_contracts")
+}
+
+// Operational Planning System
+model OperationalPlanYear {
+  id          String   @id @default(cuid())
+  year        Int      @unique
+  title       String   // e.g., "الخطة التشغيلية 2026"
+  status      String   @default("DRAFT") // DRAFT, ACTIVE, CLOSED
+  totalBudget Float    @default(0)
+  notes       String?
+  
+  activities  OperationalActivity[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  closedAt    DateTime?
+
+  @@map("operational_plan_years")
+}
+
+model OperationalActivity {
+  id          String   @id @default(cuid())
+  planYearId  String
+  
+  code        String?  // e.g., R-2026-47
+  name        String
+  project     String?  // Project Name
+  description String?
+  
+  budget      Float    @default(0)
+  spent       Float    @default(0)
+  remaining   Float    @default(0)
+  
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  completionPercentage Float @default(0)
+  
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  
+  responsible String?  // Name of person responsible
+  department  String?  // Department name
+  
+  startDate   DateTime?
+  endDate     DateTime?
+  quarter     Int?     // 1, 2, 3, 4
+  notes       String?
+  
+  planYear    OperationalPlanYear @relation(fields: [planYearId], references: [id], onDelete: Cascade)
+  items         OperationalItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([planYearId])
+  @@index([status])
+  @@map("operational_activities")
+}
+
+model OperationalItem {
+  id          String              @id @default(cuid())
+  title       String
+  amount      Float               @default(0) // Budgeted
+  spent       Float               @default(0) // Actual/Spent
+  activityId  String
+  activity    OperationalActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+// System Audit Log
+model SystemLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  action    String   // e.g., CREATE, UPDATE, DELETE, RESTORE, LOGIN, EXPORT, IMPORT
+  entity    String   // e.g., USER, ASSET, TICKET, SETTINGS
+  entityId  String?  // ID of the affected entity
+  
+  details   String?  // JSON or text description of the change
+  
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([userId])
+}
+
+// System Configuration (Key-Value Store)
+model SystemSetting {
+  key         String   @id // e.g., SMTP_HOST, ALLOW_SIGNUP, MAINTENANCE_MODE
+  value       String   // stored as string, parsed in app
+  description String?
+  isPublic    Boolean  @default(false) // Accessible to client without auth?
+
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?  // userId
+}
+
+// Automation Engine
+model AutomationRule {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  
+  // Trigger Definition
+  triggerType String   // TICKET_CREATED, TICKET_UPDATED, ASSET_CREATED, SCHEDULE_DAILY
+  
+  // Logic & Actions (JSON)
+  conditions  String   // JSON: { field, operator, value }[]
+  actions     String   // JSON: { type, params }[]
+  
+  // Stats
+  runCount    Int      @default(0)
+  lastRunAt   DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+}

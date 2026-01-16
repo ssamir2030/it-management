@@ -1,0 +1,116 @@
+{
+    "name": "بوابة الموظفين",
+    "short_name": "بوابة IT",
+    "description": "بوابة خدمات الموظفين - نظام إدارة أصول تقنية المعلومات",
+    "start_url": "/portal",
+    "scope": "/portal",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0f172a",
+    "theme_color": "#0f3c6e",
+    "dir": "rtl",
+    "lang": "ar",
+    "categories": [
+        "business",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/screenshots/portal-home.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "الصفحة الرئيسية"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "طلب دعم فني",
+            "short_name": "دعم",
+            "description": "فتح تذكرة دعم فني جديدة",
+            "url": "/portal/support/new",
+            "icons": [
+                {
+                    "src": "/icons/support-icon.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "عهدتي",
+            "short_name": "العهدة",
+            "description": "عرض الأصول المسجلة باسمك",
+            "url": "/portal/my-assets",
+            "icons": [
+                {
+                    "src": "/icons/assets-icon.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "حجز قاعة",
+            "short_name": "حجز",
+            "description": "حجز قاعة اجتماعات",
+            "url": "/portal/rooms",
+            "icons": [
+                {
+                    "src": "/icons/booking-icon.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

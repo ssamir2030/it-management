@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحليل الشامل للنظام - IT Asset Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        @media print {
+            body { -webkit-print-color-adjust: exact; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 p-8 md:p-12 min-h-screen">
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-10 border border-gray-100 relative overflow-hidden">
+        
+        <!-- Decorated Header -->
+        <div class="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 opacity-50"></div>
+
+        <div class="text-center mb-12 relative">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-800 mb-2">
+                التحليل الشامل للنظام
+            </h1>
+            <h2 class="text-xl text-gray-500 font-medium tracking-wide">
+                IT Asset Management System
+            </h2>
+            <div class="mt-6 inline-block px-4 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-100">
+                وثيقة تقنية رسمية
+            </div>
+        </div>
+
+        <div class="space-y-10">
+            <!-- Executive Summary -->
+            <section>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">1. الملخص التنفيذي</h3>
+                </div>
+                <p class="text-gray-600 leading-relaxed text-lg border-r-4 border-blue-500 pr-4 bg-gray-50 p-4 rounded-r-sm">
+                    يمثل هذا النظام نقلة نوعية في عالم إدارة تقنية المعلومات، حيث ينتقل من مجرد "أداة تسجيل" إلى 
+                    <span class="font-bold text-indigo-700">"منصة ذكية متكاملة"</span>. 
+                    تم تصميمه لتمكين اتخاذ القرار وأتمتة الروتين، متجاوزاً المفهوم التقليدي لإدارة الأصول (ITAM) ليدمج إدارة الخدمات (ITSM) والذكاء الاصطناعي.
+                </p>
+            </section>
+
+            <hr class="border-gray-100">
+
+            <!-- Architecture -->
+            <section>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">2. البنية التقنية (Architecture)</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                        <strong class="block text-indigo-600 mb-1">القلب النابض (Core)</strong>
+                        <span class="text-gray-600">يعتمد على <b>Next.js 14</b> لأداء خارق وسرعة استجابة.</span>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                        <strong class="block text-indigo-600 mb-1">البيانات (Data)</strong>
+                        <span class="text-gray-600">استخدام <b>Prisma ORM</b> لضمان تكامل البيانات المعقد.</span>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                        <strong class="block text-indigo-600 mb-1">الواجهة (UI/UX)</strong>
+                        <span class="text-gray-600">نظام <b>Premium Data Table</b> موحد باستخدام Shadcn/ui.</span>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                        <strong class="block text-indigo-600 mb-1">الذكاء (Intelligence)</strong>
+                        <span class="text-gray-600">دمج Recharts, CMDK للتحليل والسرعة.</span>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-gray-100">
+
+            <!-- Modules -->
+            <section>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">3. تحليل الوحدات الأساسية</h3>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                        <h4 class="font-bold text-lg text-gray-900 mb-2">أ. إدارة الأصول الذكية 💻</h4>
+                        <p class="text-gray-600 text-sm">تتبع كامل لدورة حياة الأصل، مع توليد باركود تلقائي وطباعة ذكية.</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                        <h4 class="font-bold text-lg text-gray-900 mb-2">ب. الدعم الفني والمساعدة 🎫</h4>
+                        <p class="text-gray-600 text-sm">نظام معالجة مشكلات متكامل مع مراقبة SLA ومساعد ذكي (AI Analyst).</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                        <h4 class="font-bold text-lg text-gray-900 mb-2">ج. المستودع والنظام الحي ⚡️</h4>
+                        <p class="text-gray-600 text-sm">تنبيهات انخفاض المخزون وتتبع دقيق للاستهلاك.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Intelligence -->
+            <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl shadow-lg transform hover:scale-[1.01] transition-transform">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    الذكاء المتقدم (Advanced Intelligence)
+                </h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-white/20 p-1 rounded mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg></span>
+                        <div>
+                            <strong class="block text-yellow-300">مركز القيادة (Command Center)</strong>
+                            <span class="text-slate-300 text-sm opacity-90">وصول فوري لكل النظام بلمسة زر (Ctrl+K).</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-white/20 p-1 rounded mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" /><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" /></svg></span>
+                        <div>
+                            <strong class="block text-yellow-300">لوحة الذكاء (The Brain)</strong>
+                            <span class="text-slate-300 text-sm opacity-90">رؤى وتحليلات لحظية بدلاً من مجرد أرقام صماء.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-white/20 p-1 rounded mt-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg></span>
+                        <div>
+                            <strong class="block text-yellow-300">النظام الحي (Alive System)</strong>
+                            <span class="text-slate-300 text-sm opacity-90">إشعارات حية وتفاعل مستمر.</span>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+        </div>
+
+        <div class="mt-12 text-center border-t pt-6 text-gray-400 text-sm flex items-center justify-center gap-2">
+            تم الإنشاء بواسطة فريق التطوير الذكي
+            <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
+            2025
+        </div>
+
+        <!-- Print Instructions -->
+        <div class="no-print mt-8 text-center bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <p class="text-yellow-800 font-bold mb-2">كيفية حفظ هذا الملف كـ PDF؟</p>
+            <p class="text-yellow-700 text-sm">اضغط بيمين الماوس واختر طباعة (Print)، ثم اختر "Save as PDF" من قائمة الطابعات.</p>
+        </div>
+    </div>
+</body>
+</html>
