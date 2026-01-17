@@ -124,17 +124,24 @@ export function TicketBoard({ requests: initialRequests }: TicketBoardProps) {
 
             // Server Action
             toast.promise(
-                updateRequestStatus(activeId, newStatus, "مسؤول", "تم تحديث الحالة عبر لوحة المهام"),
+                (async () => {
+                    const result = await updateRequestStatus(activeId, newStatus, "مسؤول", "تم تحديث الحالة عبر لوحة المهام")
+                    if (!result.success) {
+                        throw new Error(result.error)
+                    }
+                    return result
+                })(),
                 {
                     loading: 'جاري تحديث الحالة...',
                     success: () => {
                         router.refresh()
                         return 'تم تحديث الحالة بنجاح'
                     },
-                    error: (err) => {
+                    error: (err: any) => {
+                        console.error("FULL ERROR OBJECT:", err);
                         // Revert on error
                         setRequests(initialRequests)
-                        return 'فشل تحديث الحالة'
+                        return `خطأ: ${err.message || 'فشل غير معروف'}`
                     }
                 }
             )

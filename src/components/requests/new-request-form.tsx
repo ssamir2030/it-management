@@ -69,8 +69,8 @@ export function NewRequestForm({
             if (uploadedFiles) {
                 const newAttachments = uploadedFiles.map(file => ({
                     fileName: file.name,
-                    fileUrl: file.url,
-                    fileType: file.name.split('.').pop() || 'file', // Fallback as server doesn't return type
+                    fileUrl: file.ufsUrl,
+                    fileType: files.find(f => f.name === file.name)?.type || 'application/octet-stream', // Get real MIME type from original input
                     fileSize: file.size
                 }))
 
@@ -171,7 +171,7 @@ export function NewRequestForm({
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 {/* العنوان */}
                 <div className="space-y-3 md:col-span-8 relative">
-                    <Label htmlFor="subject" className="text-base font-semibold dark:text-slate-200">عنوان الطلب *</Label>
+                    <Label htmlFor="subject" className="text-base font-semibold dark:text-slate-200">عنوان الطلب (v2.1) *</Label>
                     <Input
                         id="subject"
                         placeholder={titlePlaceholder}

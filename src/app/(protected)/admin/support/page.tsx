@@ -163,8 +163,8 @@ export default function SupportRequestsPage() {
     return (
         <div className="w-full py-6 space-y-6 min-h-screen">
             <PremiumPageHeader
-                title="طلبات الدعم الفني"
-                description="جميع طلبات الدعم الفني الواردة من الموظفين"
+                title="طلبات الدعم الفني (v2.1)"
+                description="جميع طلبات الدعم الفني الواردة من الموظفين - نسخة محدثة"
                 icon={Headset}
                 stats={[
                     { label: "إجمالي الطلبات", value: requests.length, icon: AlertCircle },

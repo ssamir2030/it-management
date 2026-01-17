@@ -125,9 +125,9 @@ export function AdminSupportButton() {
                         name: file.name,
                         size: file.size,
                         type: 'file', // Default as we don't get MIME type back directly here easily without preserving
-                        url: file.url,
+                        url: file.ufsUrl,
                         fileName: file.name,
-                        fileUrl: file.url
+                        fileUrl: file.ufsUrl
                     }))
                     setAttachments(prev => [...prev, ...newAttachments])
                 }

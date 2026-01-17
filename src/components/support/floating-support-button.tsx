@@ -144,9 +144,9 @@ export function FloatingSupportButton() {
                         name: file.name,
                         size: file.size,
                         type: 'file',
-                        url: file.url,
+                        url: file.ufsUrl,
                         fileName: file.name,
-                        fileUrl: file.url
+                        fileUrl: file.ufsUrl
                     }))
                     setAttachments(prev => [...prev, ...newAttachments])
                 }

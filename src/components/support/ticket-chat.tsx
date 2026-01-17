@@ -107,7 +107,7 @@ export function TicketChat({ ticket: initialTicket, currentUserId }: TicketChatP
                     const newAttachments = uploadedFiles.map(file => ({
                         id: Math.random().toString(36).substr(2, 9), // Temp ID
                         fileName: file.name,
-                        fileUrl: file.url,
+                        fileUrl: file.ufsUrl,
                         name: file.name
                     }))
                     setAttachments(prev => [...prev, ...newAttachments])

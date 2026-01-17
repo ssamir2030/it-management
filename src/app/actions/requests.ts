@@ -248,7 +248,7 @@ export async function updateRequestStatus(
         return { success: true }
     } catch (error) {
         console.error("Error updating request status:", error)
-        return { success: false, error: "فشل تحديث حالة الطلب" }
+        return { success: false, error: `فشل تحديث حالة الطلب: ${error instanceof Error ? error.message : String(error)}` }
     }
 }
 
