@@ -30,6 +30,22 @@ export async function getEmployeeById(id: string) {
             where: {
                 id,
                 deletedAt: null
+            },
+            include: {
+                department: true,
+                location: true,
+                assets: {
+                    take: 5,
+                    orderBy: { createdAt: 'desc' }
+                },
+                _count: {
+                    select: {
+                        assets: true,
+                        requests: true,
+                        roomBookings: true,
+                        equipmentBookings: true
+                    }
+                }
             }
         })
         return { success: true, data: employee }
