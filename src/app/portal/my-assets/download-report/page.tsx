@@ -263,7 +263,7 @@ async function CustodyReport() {
                         <div className="flex flex-col items-center justify-end">
                             <div className="relative group/seal flex flex-col items-center">
                                 <img
-                                    src="/uploads/official-stamp.png"
+                                    src={companyProfile?.stampUrl || "/uploads/official-stamp.png"}
                                     alt="Seal"
                                     className="h-28 w-auto object-contain opacity-95 transition-all duration-700 hover:scale-110 grayscale-[0.2] hover:grayscale-0 mb-3"
                                     style={{ mixBlendMode: 'multiply' }}
