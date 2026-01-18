@@ -262,12 +262,20 @@ async function CustodyReport() {
                         {/* Approval Flow 3: SEAL (Lifted & Resized) */}
                         <div className="flex flex-col items-center justify-end">
                             <div className="relative group/seal flex flex-col items-center">
-                                <img
-                                    src={companyProfile?.stampUrl || "/uploads/official-stamp.png"}
-                                    alt="Seal"
-                                    className="h-28 w-auto object-contain opacity-95 transition-all duration-700 hover:scale-110 grayscale-[0.2] hover:grayscale-0 mb-3"
-                                    style={{ mixBlendMode: 'multiply' }}
-                                />
+                                {companyProfile?.stampUrl ? (
+                                    <img
+                                        src={companyProfile.stampUrl}
+                                        alt="Seal"
+                                        className="h-28 w-auto object-contain opacity-95 transition-all duration-700 hover:scale-110 grayscale-[0.2] hover:grayscale-0 mb-3"
+                                        style={{ mixBlendMode: 'multiply' }}
+                                    />
+                                ) : (
+                                    <div className="h-28 w-28 rounded-full border-4 border-slate-900 flex items-center justify-center p-2 mb-3">
+                                        <span className="text-[11px] font-black text-slate-900 text-center leading-tight">
+                                            {companyProfile?.nameAr || 'ختم الشركة'}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="text-center">
                                     <span className="text-[9px] font-black text-slate-200 uppercase tracking-[1.2em] block ml-4">REGISTERED</span>
                                 </div>
