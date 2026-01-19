@@ -17,7 +17,7 @@ async function main() {
             email: true,
             role: true,
             createdAt: true,
-            isActive: true
+            deletedAt: true
         },
         orderBy: { createdAt: 'desc' }
     })
@@ -26,7 +26,7 @@ async function main() {
     console.log('─'.repeat(80))
 
     users.forEach((user, index) => {
-        const status = user.isActive ? '🟢 نشط' : '🔴 معطل'
+        const status = !user.deletedAt ? '🟢 نشط' : '🔴 محذوف'
         console.log(`${index + 1}. ${user.name}`)
         console.log(`   البريد: ${user.email}`)
         console.log(`   الدور: ${user.role}`)
