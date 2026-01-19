@@ -331,7 +331,9 @@ export default function PurchasingPage() {
                                         brandName?: string,
                                         modelName?: string,
                                         inkName?: string,
-                                        inkCode?: string
+                                        inkCode?: string,
+                                        oldestDate?: Date,
+                                        newestDate?: Date
                                     }> = {}
 
                                     pendingRequests.forEach(req => {
@@ -379,6 +381,14 @@ export default function PurchasingPage() {
                                             if (!aggregatedData[key].ids.includes(req.id)) {
                                                 aggregatedData[key].ids.push(req.id)
                                             }
+                                            // Track dates
+                                            const reqDate = new Date(req.createdAt)
+                                            if (!aggregatedData[key].oldestDate || reqDate < aggregatedData[key].oldestDate) {
+                                                aggregatedData[key].oldestDate = reqDate
+                                            }
+                                            if (!aggregatedData[key].newestDate || reqDate > aggregatedData[key].newestDate) {
+                                                aggregatedData[key].newestDate = reqDate
+                                            }
                                         })
                                     })
 
@@ -425,9 +435,17 @@ export default function PurchasingPage() {
                                                                 الكود: {item.inkCode}
                                                             </div>
                                                         )}
-                                                        <div className="text-sm text-muted-foreground mt-1 flex gap-2">
+                                                        <div className="text-sm text-muted-foreground mt-1 flex flex-wrap gap-2">
                                                             <Badge variant="outline">إجمالي الكمية: {item.totalQty}</Badge>
                                                             <span className="flex items-center text-xs">من {item.count} طلب</span>
+                                                            {item.oldestDate && (
+                                                                <span className="flex items-center text-xs gap-1 text-slate-500">
+                                                                    📅 {item.oldestDate.toLocaleDateString('ar-SA')}
+                                                                    {item.count > 1 && item.newestDate && item.oldestDate.getTime() !== item.newestDate.getTime() && (
+                                                                        <span> - {item.newestDate.toLocaleDateString('ar-SA')}</span>
+                                                                    )}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
