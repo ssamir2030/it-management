@@ -82,6 +82,43 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+// Smart Alerts System
+model AlertSettings {
+  id                     String   @id @default(cuid())
+  warrantyAlertDays      Int      @default(30)
+  licenseAlertDays       Int      @default(30)
+  maintenanceAlertDays   Int      @default(7)
+  emailNotifications     Boolean  @default(true)
+  dashboardNotifications Boolean  @default(true)
+  notificationEmail      String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("alert_settings")
+}
+
+model SystemAlert {
+  id          String   @id @default(cuid())
+  type        String   // WARRANTY, LICENSE, MAINTENANCE
+  title       String
+  message     String
+  severity    String   @default("WARNING") // INFO, WARNING, CRITICAL
+  entityType  String   // ASSET, LICENSE
+  entityId    String
+  entityName  String?
+  expiryDate  DateTime
+  daysLeft    Int
+  isRead      Boolean  @default(false)
+  isDismissed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@index([severity])
+  @@index([isRead])
+  @@index([isDismissed])
+  @@map("system_alerts")
+}
+
 model Employee {
   id                     String                  @id @default(cuid())
   name                   String
