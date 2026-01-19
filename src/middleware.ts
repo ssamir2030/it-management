@@ -75,7 +75,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // 6. Handle Admin System (Everything else)
-    const publicAdminPaths = ['/login', '/agent.ps1', '/AgentInstaller.ps1', '/AgentSetup.bat']
+    const publicAdminPaths = ['/login', '/forgot-password', '/agent.ps1', '/AgentInstaller.ps1', '/AgentSetup.bat']
     if (publicAdminPaths.includes(pathname)) {
         return response
     }

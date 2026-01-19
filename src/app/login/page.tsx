@@ -90,7 +90,10 @@ export default function LoginPage() {
                                 />
                             </div>
                             <div className="grid gap-2 group">
-                                <Label htmlFor="password" className="group-focus-within:text-primary transition-colors">كلمة المرور</Label>
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password" className="group-focus-within:text-primary transition-colors">كلمة المرور</Label>
+                                    <a href="/forgot-password" className="text-sm text-primary hover:underline">نسيت كلمة المرور؟</a>
+                                </div>
                                 <Input
                                     id="password"
                                     name="password"
