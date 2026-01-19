@@ -115,18 +115,12 @@ export default function LoginPage() {
 
                             <LoginButton loading={loading} />
                         </form>
-
-                        <div className="mt-4 text-center text-sm bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <p className="font-semibold text-blue-900 dark:text-blue-100 mb-2">بيانات الدخول الافتراضية:</p>
-                            <p className="font-mono text-blue-700 dark:text-blue-300" dir="ltr">admin@system.com</p>
-                            <p className="font-mono text-blue-700 dark:text-blue-300" dir="ltr">123456</p>
-                        </div>
                     </div>
 
-                    <div className="mt-4 text-center text-sm">
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground bg-muted/30 p-3 rounded-xl border border-border/50 hover:bg-muted/50 transition-colors cursor-help">
-                            <ShieldCheck className="h-4 w-4 text-green-500 animate-bounce" />
-                            <span>نظام آمن ومحمي بتشفير متقدم</span>
+                    <div className="mt-6 text-center">
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                            <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                            <span className="text-sm">نظام آمن ومحمي بتشفير متقدم</span>
                         </div>
                     </div>
                 </div>
