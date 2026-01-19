@@ -77,7 +77,6 @@ const sidebarItems = [
     { title: "مراقبة SLA", href: "/sla-monitor", icon: Timer },
     { title: "المحادثات", href: "/messages", icon: MessageCircle },
     { title: "الإعلانات", href: "/admin/announcements", icon: Megaphone },
-    { title: "التذكيرات", href: "/reminders", icon: Bell },
     { title: "التنبيهات الذكية", href: "/admin/alerts", icon: Bell },
 
     // 🖥️ إدارة الأصول
