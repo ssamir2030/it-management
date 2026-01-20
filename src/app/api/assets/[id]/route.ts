@@ -16,7 +16,6 @@ export async function GET(
                 },
                 location: true,
                 category: true,
-                supplier: true,
             }
         })
 
