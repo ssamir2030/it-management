@@ -1,0 +1,7 @@
+# Ignore mobile app folder - it's a separate React Native project
+mobile-app/
+mobile-app/**
+
+# Other ignores
+.git
+node_modules
