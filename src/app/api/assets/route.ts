@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
                         select: { id: true, name: true }
                     },
                     category: {
-                        select: { id: true, name: true }
+                        select: { id: true, nameAr: true, nameEn: true }
                     }
                 },
                 take: limit,
