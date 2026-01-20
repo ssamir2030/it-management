@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
         }
 
         const [tickets, total, openCount] = await Promise.all([
-            prisma.supportTicket.findMany({
+            prisma.ticket.findMany({
                 where,
                 include: {
-                    employee: {
+                    createdBy: {
                         select: { id: true, name: true }
                     },
                     assignedTo: {
@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
                 skip: (page - 1) * limit,
                 orderBy: { createdAt: 'desc' }
             }),
-            prisma.supportTicket.count({ where }),
-            prisma.supportTicket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } })
+            prisma.ticket.count({ where }),
+            prisma.ticket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } })
         ])
 
         return NextResponse.json({
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        const { title, description, priority, employeeId } = body
+        const { title, description, priority } = body
 
         if (!title) {
             return NextResponse.json(
@@ -66,18 +66,12 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const ticket = await prisma.supportTicket.create({
+        const ticket = await prisma.ticket.create({
             data: {
                 title,
                 description: description || '',
                 priority: priority || 'MEDIUM',
                 status: 'OPEN',
-                employeeId: employeeId || null,
-            },
-            include: {
-                employee: {
-                    select: { id: true, name: true }
-                }
             }
         })
 

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
     try {
-        // Get total counts
+        // Get total counts using correct model names
         const [
             totalAssets,
             totalEmployees,
@@ -12,8 +12,8 @@ export async function GET() {
         ] = await Promise.all([
             prisma.asset.count({ where: { deletedAt: null } }),
             prisma.employee.count({ where: { deletedAt: null } }),
-            prisma.supportTicket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
-            prisma.assetRequest.count({ where: { status: 'PENDING' } })
+            prisma.ticket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+            prisma.employeeRequest.count({ where: { status: 'PENDING' } })
         ])
 
         // Get asset status breakdown
