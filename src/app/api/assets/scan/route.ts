@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const asset = await prisma.asset.findFirst({
             where: {
                 OR: [
-                    { assetTag: barcode },
+                    { tag: barcode },
                     { serialNumber: barcode },
                 ],
                 deletedAt: null

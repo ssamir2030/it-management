@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         if (search) {
             where.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
-                { assetTag: { contains: search, mode: 'insensitive' } },
+                { tag: { contains: search, mode: 'insensitive' } },
                 { serialNumber: { contains: search, mode: 'insensitive' } },
             ]
         }
