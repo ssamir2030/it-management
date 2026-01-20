@@ -1,7 +1,15 @@
 // API Configuration
 export const API_CONFIG = {
-    // Change this to your production URL
-    BASE_URL: __DEV__ ? 'http://192.168.1.100:3000' : 'https://your-domain.com',
+    // Production: Vercel URL | Development: Local IP
+    // Change LOCAL_DEV_URL to your computer's IP for local testing
+    LOCAL_DEV_URL: 'http://192.168.1.100:3000',
+    PRODUCTION_URL: 'https://it-management-ssamir2030s-projects.vercel.app',
+
+    // Automatically use production URL (Vercel)
+    get BASE_URL() {
+        // Always use production for now
+        return this.PRODUCTION_URL;
+    },
 
     // API Endpoints
     ENDPOINTS: {
