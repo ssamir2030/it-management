@@ -21,14 +21,7 @@ export async function GET(request: NextRequest) {
             const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
 
             const user = await prisma.user.findUnique({
-                where: { id: decoded.userId },
-                include: {
-                    employee: {
-                        include: {
-                            department: true
-                        }
-                    }
-                }
+                where: { id: decoded.userId }
             })
 
             if (!user) {
@@ -45,11 +38,6 @@ export async function GET(request: NextRequest) {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    employee: user.employee ? {
-                        id: user.employee.id,
-                        name: user.employee.name,
-                        department: user.employee.department?.name
-                    } : null
                 }
             })
 

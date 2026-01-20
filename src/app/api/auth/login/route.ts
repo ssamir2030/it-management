@@ -19,19 +19,19 @@ export async function POST(request: NextRequest) {
 
         // Find user by email
         const user = await prisma.user.findUnique({
-            where: { email: email.toLowerCase() },
-            include: {
-                employee: {
-                    include: {
-                        department: true
-                    }
-                }
-            }
+            where: { email: email.toLowerCase() }
         })
 
         if (!user) {
             return NextResponse.json(
                 { success: false, error: 'بيانات الدخول غير صحيحة' },
+                { status: 401 }
+            )
+        }
+
+        if (!user.password) {
+            return NextResponse.json(
+                { success: false, error: 'هذا الحساب لا يملك كلمة مرور' },
                 { status: 401 }
             )
         }
@@ -62,11 +62,6 @@ export async function POST(request: NextRequest) {
             name: user.name,
             email: user.email,
             role: user.role,
-            employee: user.employee ? {
-                id: user.employee.id,
-                name: user.employee.name,
-                department: user.employee.department?.name
-            } : null
         }
 
         return NextResponse.json({
