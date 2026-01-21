@@ -57,7 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return { success: false, error: response.error || 'فشل تسجيل الدخول' };
         } catch (error: any) {
             console.error('Login error:', error);
-            return { success: false, error: error.response?.data?.error || 'حدث خطأ في الاتصال' };
+            // Ensure error message is always a string
+            let errorMessage = 'حدث خطأ في الاتصال';
+            if (error.response?.data?.error) {
+                const errData = error.response.data.error;
+                errorMessage = typeof errData === 'string' ? errData : JSON.stringify(errData);
+            } else if (error.message) {
+                errorMessage = typeof error.message === 'string' ? error.message : 'حدث خطأ';
+            }
+            return { success: false, error: errorMessage };
         }
     };
 

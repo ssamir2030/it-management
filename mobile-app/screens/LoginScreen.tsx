@@ -33,7 +33,7 @@ export default function LoginScreen() {
         setLoading(false);
 
         if (!result.success) {
-            Alert.alert('خطأ', result.error || 'فشل تسجيل الدخول');
+            Alert.alert('خطأ', String(result.error || 'فشل تسجيل الدخول'));
         }
     };
 
