@@ -35,7 +35,11 @@ async function main() {
 
     for (const pkg of packages) {
         await prisma.softwarePackage.create({
-            data: pkg,
+            data: {
+                id: crypto.randomUUID(),
+                ...pkg,
+                updatedAt: new Date()
+            },
         })
         console.log(`Created package: ${pkg.name}`)
     }

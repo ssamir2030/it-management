@@ -11,25 +11,29 @@ async function main() {
         console.log('Seeding initial inventory items...')
         await prisma.inventoryItem.create({
             data: {
+                id: crypto.randomUUID(),
                 name: 'HP EliteBook 840 G8',
                 category: 'Laptops',
                 manufacturer: 'HP',
                 model: 'G8',
                 quantity: 10,
                 minQuantity: 2,
-                serialNumber: '5CG1234567'
+                serialNumber: '5CG1234567',
+                updatedAt: new Date()
             }
         })
         console.log('Created HP EliteBook 840 G8')
 
         await prisma.inventoryItem.create({
             data: {
+                id: crypto.randomUUID(),
                 name: 'Dell Monitor 24"',
                 category: 'Monitors',
                 manufacturer: 'Dell',
                 model: 'P2419H',
                 quantity: 5,
-                minQuantity: 1
+                minQuantity: 1,
+                updatedAt: new Date()
             }
         })
         console.log('Created Dell Monitor 24"')

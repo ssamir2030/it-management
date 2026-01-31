@@ -57,19 +57,20 @@ async function main() {
 
     // 5. Create Asset Categories (4-Tier Structure)
     const laptopCat = await prisma.assetCategory.create({
-        data: { nameAr: 'أجهزة لابتوب', nameEn: 'Laptops', type: 'IT', prefix: 'LAP' }
+        data: { id: crypto.randomUUID(), nameAr: 'أجهزة لابتوب', nameEn: 'Laptops', type: 'IT', prefix: 'LAP', updatedAt: new Date() }
     })
     const mouseCat = await prisma.assetCategory.create({
-        data: { nameAr: 'إكسسوارات', nameEn: 'Accessories', type: 'ACCESSORY' }
+        data: { id: crypto.randomUUID(), nameAr: 'إكسسوارات', nameEn: 'Accessories', type: 'ACCESSORY', updatedAt: new Date() }
     })
     const softwareCat = await prisma.assetCategory.create({
-        data: { nameAr: 'برامج تشغيل', nameEn: 'Operating Systems', type: 'LICENSE' }
+        data: { id: crypto.randomUUID(), nameAr: 'برامج تشغيل', nameEn: 'Operating Systems', type: 'LICENSE', updatedAt: new Date() }
     })
 
     // 6. Create Assets (The "Snipe-IT" Core)
     const location = await prisma.location.findFirst()
     await prisma.asset.create({
         data: {
+            id: crypto.randomUUID(),
             name: 'HP EliteBook G8',
             tag: 'LAP-1001',
             type: 'HARDWARE',
@@ -81,12 +82,14 @@ async function main() {
             categoryId: laptopCat.id,
             price: 4500,
             purchaseDate: new Date(),
+            updatedAt: new Date()
         }
     })
 
     // 7. Create Accessories (Quantitative)
     await prisma.accessory.create({
         data: {
+            id: crypto.randomUUID(),
             name: 'Logitech Wireless Mouse M185',
             totalQty: 50,
             remainingQty: 50,
@@ -96,12 +99,14 @@ async function main() {
             locationId: location?.id,
             supplierId: supplier?.id,
             cost: 45,
+            updatedAt: new Date()
         }
     })
 
     // 8. Create Licenses (Seats)
     await prisma.softwareLicense.create({
         data: {
+            id: crypto.randomUUID(),
             name: 'Windows 11 Pro',
             key: 'XXXX-YYYY-ZZZZ-AAAA',
             type: 'PERPETUAL',
@@ -109,6 +114,7 @@ async function main() {
             usedSeats: 0,
             cost: 800,
             supplierId: supplier?.id,
+            updatedAt: new Date()
         }
     })
 
