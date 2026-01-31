@@ -55,7 +55,7 @@ async function main() {
         skipDuplicates: true,
     })
     console.log('Created Suppliers')
-    const supplier = await prisma.supplier.findFirst()
+    const supplier = await prisma.suppliers.findFirst()
 
     // 5. Create Asset Categories (4-Tier Structure)
     const laptopCat = await prisma.assetCategory.create({
