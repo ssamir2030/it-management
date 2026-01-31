@@ -8,12 +8,11 @@ async function main() {
 
     // 1. Create Main Categories if they don't exist
     const mainCategories = [
-        { nameAr: 'أجهزة تقنية', nameEn: 'Technical Devices', type: 'IT' },
-        { nameAr: 'أثاث مكتبي', nameEn: 'Office Furniture', type: 'FURNITURE' },
-        { nameAr: 'أجهزة كهربائية', nameEn: 'Electrical Appliances', type: 'GENERAL' },
-        { nameAr: 'أخرى', nameEn: 'Other', type: 'OTHER' }
+        { nameAr: 'أجهزة تقنية', nameEn: 'Technical Devices', type: 'IT' as const },
+        { nameAr: 'أثاث مكتبي', nameEn: 'Office Furniture', type: 'FURNITURE' as const },
+        { nameAr: 'أجهزة كهربائية', nameEn: 'Electrical Appliances', type: 'GENERAL' as const },
+        { nameAr: 'أخرى', nameEn: 'Other', type: 'OTHER' as const }
     ]
-
     const mainCategoryMap = new Map()
 
     for (const cat of mainCategories) {
