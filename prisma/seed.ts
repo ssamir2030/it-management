@@ -46,7 +46,7 @@ async function main() {
     console.log('Created Locations')
 
     // 4. Create Suppliers
-    const suppliers = await prisma.supplier.createMany({
+    const suppliersResult = await prisma.suppliers.createMany({
         data: [
             { id: crypto.randomUUID(), name: 'Jarir Bookstore', email: 'b2b@jarir.com', phone: '920000000', updatedAt: new Date() },
             { id: crypto.randomUUID(), name: 'Extra Stores', email: 'sales@extra.com', updatedAt: new Date() },
