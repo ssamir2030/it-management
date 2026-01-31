@@ -37,7 +37,8 @@ export default async function AssetDetailsPage({ params }: AssetDetailsPageProps
             },
             documents: true,
             remoteAgent: true,
-            maintenanceSchedules: true
+            maintenanceSchedules: true,
+            location: true
         }
     })
 
@@ -67,13 +68,14 @@ export default async function AssetDetailsPage({ params }: AssetDetailsPageProps
             title={asset.name}
             description={`تفاصيل الأصل: ${asset.tag}`}
             icon={Package}
-            breadcrumbs={[
-                { label: 'الرئيسية', href: '/dashboard' },
-                { label: 'الأصول', href: '/assets' },
-                { label: asset.name }
-            ]}
+            breadcrumbs={
+                [
+                    { label: 'الرئيسية', href: '/dashboard' },
+                    { label: 'الأصول', href: '/assets' },
+                    { label: asset.name }
+                ]}
             actions={
-                <div className="flex gap-2">
+                < div className="flex gap-2" >
                     <QRCodeGenerator
                         data={`/assets/${asset.id}`}
                         name={asset.name}
@@ -86,7 +88,7 @@ export default async function AssetDetailsPage({ params }: AssetDetailsPageProps
                     <Link href={`/assets/${asset.id}/edit`}>
                         <Button variant="outline">تعديل</Button>
                     </Link>
-                </div>
+                </div >
             }
         >
             <div className="grid gap-6 md:grid-cols-3">
@@ -139,6 +141,13 @@ export default async function AssetDetailsPage({ params }: AssetDetailsPageProps
                                     <div className="space-y-1.5">
                                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">الحالة</span>
                                         <div>{getStatusBadge(asset.status)}</div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">الموقع</span>
+                                        <div className="flex items-center gap-2">
+                                            <MapPin className="h-4 w-4 text-slate-400" />
+                                            <p className="font-medium">{asset.location?.name || '-'}</p>
+                                        </div>
                                     </div>
                                     <div className="space-y-1.5">
                                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">الرقم التسلسلي</span>
@@ -299,6 +308,6 @@ export default async function AssetDetailsPage({ params }: AssetDetailsPageProps
                     </Card>
                 </div>
             </div>
-        </Page>
+        </Page >
     )
 }

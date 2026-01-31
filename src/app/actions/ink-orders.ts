@@ -36,15 +36,18 @@ export async function submitInkRequest(params: {
             fullDetails += `\n\n----------------\nملاحظات عامة: ${params.notes}`
         }
 
-        // Embed structured data for automated processing (Hidden from UI but parsable)
+        // Professional Subject Generation
+        let subject = ""
+        if (params.items.length === 1) {
+            const item = params.items[0]
+            subject = `طلب حبر: ${item.itemName}`
+        } else {
+            subject = `طلب أحبار (${params.items.length} أصناف)`
+        }
+
+        // Embed structured data for automated processing (Hidden but cleaner for parsing)
         const structuredData = JSON.stringify(params.items)
-        fullDetails += `\n\n<!-- DATA: ${structuredData} -->`
-
-
-
-        const subject = params.items.length === 1
-            ? `طلب حبر: ${params.items[0].itemName}`
-            : `طلب أحبار (${params.items.length} أصناف)`
+        fullDetails += `\n\n:::DATA:::${structuredData}:::END_DATA:::`
 
 
         // Calculate Due Date (Fail Safe)

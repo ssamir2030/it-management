@@ -1,12 +1,6 @@
+
 export const dynamic = 'force-dynamic';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import {
     Activity,
     CreditCard,
@@ -17,7 +11,6 @@ import {
     UserCheck,
     AlertTriangle,
     TrendingUp,
-    Lightbulb
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -25,6 +18,17 @@ import { getDashboardStats } from "@/app/actions/dashboard"
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts"
 import { InventoryAlerts } from "@/components/dashboard/inventory-alerts"
 import { HealthCheckDialog } from "@/components/admin/HealthCheckDialog"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import { RequestsOverview } from "@/components/dashboard/requests-overview"
+import { RecentActivities } from "@/components/dashboard/recent-activities"
+import { format } from "date-fns"
+import { ar } from "date-fns/locale"
 
 export default async function AdminDashboard() {
     const { data: dashboardData } = await getDashboardStats()
@@ -63,52 +67,64 @@ export default async function AdminDashboard() {
 
             {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up stagger-1">
-                <Card className="card-elevated hover-scale border-t-4 border-t-blue-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">إجمالي الطلبات</CardTitle>
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <CreditCard className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-blue-100">إجمالي الطلبات</CardTitle>
+                        <CreditCard className="h-4 w-4 text-blue-100" />
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{dashboardData.totalRequests}</div>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <TrendingUp className="h-3 w-3 text-green-500" />
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{dashboardData.totalRequests}</div>
+                        <p className="text-xs text-blue-100/80 flex items-center gap-1 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            <TrendingUp className="h-3 w-3" />
                             +20.1% من الشهر الماضي
                         </p>
                     </CardContent>
                 </Card>
-                <Card className="card-elevated hover-scale border-t-4 border-t-yellow-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">قيد الانتظار</CardTitle>
-                        <Clock className="h-4 w-4 text-muted-foreground" />
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Clock className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-amber-100">قيد الانتظار</CardTitle>
+                        <Clock className="h-4 w-4 text-amber-100" />
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{dashboardData.pendingRequests}</div>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{dashboardData.pendingRequests}</div>
+                        <p className="text-xs text-amber-100/80 flex items-center gap-1 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            <AlertTriangle className="h-3 w-3" />
                             تتطلب اهتماماً فورياً
                         </p>
                     </CardContent>
                 </Card>
-                <Card className="card-elevated hover-scale border-t-4 border-t-green-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">نسبة الإنجاز</CardTitle>
-                        <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <CheckCircle2 className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-emerald-100">نسبة الإنجاز</CardTitle>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-100" />
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{dashboardData.completionRate}%</div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{dashboardData.completionRate}%</div>
+                        <p className="text-xs text-emerald-100/80 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
                             معدل إغلاق التذاكر هذا الأسبوع
                         </p>
                     </CardContent>
                 </Card>
-                <Card className="card-elevated hover-scale border-t-4 border-t-purple-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">رضا الموظفين</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Users className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-purple-100">رضا الموظفين</CardTitle>
+                        <Users className="h-4 w-4 text-purple-100" />
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{dashboardData.customerSatisfaction}/5</div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{dashboardData.customerSatisfaction}/5</div>
+                        <p className="text-xs text-purple-100/80 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
                             بناءً على تقييمات الخدمة
                         </p>
                     </CardContent>
@@ -121,47 +137,13 @@ export default async function AdminDashboard() {
                 ticketStatus={dashboardData.ticketStatus}
             />
 
-            {/* Recent Requests Section - Keeping it as legacy list for now, but encapsulated in grid */}
+            {/* Recent Requests Section */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 animate-slide-up stagger-3">
-                <Card className="col-span-4 card-elevated">
-                    <CardHeader>
-                        <CardTitle>آخر الطلبات</CardTitle>
-                        <CardDescription>
-                            يوجد {dashboardData.pendingRequests} طلبات قيد الانتظار حالياً
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {dashboardData.recentRequests && dashboardData.recentRequests.length > 0 ? (
-                                dashboardData.recentRequests.map((req: any, i: number) => (
-                                    <div key={i} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold text-sm">
-                                                {req.employeeName?.[0]}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium">{req.employeeName}</p>
-                                                <p className="text-xs text-muted-foreground">{req.department}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'PENDING' || req.status === 'OPEN' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
-                                                }`}>
-                                                {req.status === 'PENDING' || req.status === 'OPEN' ? 'قيد الانتظار' : req.status === 'CLOSED' ? 'مغلقة' : req.status}
-                                            </span>
-                                            <p className="text-xs text-muted-foreground mt-1">{new Date(req.createdAt).toLocaleDateString('ar-SA')}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-center text-muted-foreground py-8">لا توجد طلبات حديثة</p>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+                <RequestsOverview data={dashboardData.requestsTrend || []} />
+                <RecentActivities requests={dashboardData.recentRequests || []} />
 
                 {/* System Health / Quick Actions */}
-                <Card className="col-span-3 card-elevated">
+                <Card className="col-span-3 lg:col-span-7 xl:col-span-3 card-elevated h-fit">
                     <CardHeader>
                         <CardTitle>حالة النظام</CardTitle>
                         <CardDescription>مؤشرات الصحة العامة للنظام</CardDescription>

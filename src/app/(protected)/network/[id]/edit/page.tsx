@@ -35,7 +35,7 @@ export default async function EditNetworkDevicePage({ params }: { params: { id: 
                 }
             />
             <NetworkDeviceForm
-                locations={locationsRes.data || []}
+                locations={locationsRes.data?.map(l => ({ id: l.id, name: l.name })) || []}
                 initialData={deviceRes.data}
             />
         </div>

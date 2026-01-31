@@ -23,9 +23,10 @@ interface NewAssetFormProps {
     employees: any[]
     inventoryItems: any[]
     categories: any[]
+    locations: any[]
 }
 
-export function NewAssetForm({ employees, inventoryItems, categories }: NewAssetFormProps) {
+export function NewAssetForm({ employees, inventoryItems, categories, locations }: NewAssetFormProps) {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [source, setSource] = useState<"NEW" | "INVENTORY">("NEW")
@@ -188,8 +189,8 @@ export function NewAssetForm({ employees, inventoryItems, categories }: NewAsset
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="categoryId" className="text-base font-semibold">التصنيف الفرعي *</Label>
-                                        <Select name="categoryId" required disabled={!selectedMainCategory}>
+                                        <Label htmlFor="categoryId" className="text-base font-semibold">التصنيف الفرعي</Label>
+                                        <Select name="categoryId" disabled={!selectedMainCategory}>
                                             <SelectTrigger className="h-12 text-base">
                                                 <SelectValue placeholder="النوع الفرعي" />
                                             </SelectTrigger>
@@ -203,9 +204,25 @@ export function NewAssetForm({ employees, inventoryItems, categories }: NewAsset
                                                     ))}
                                             </SelectContent>
                                         </Select>
-                                        {!selectedMainCategory && <p className="text-xs text-muted-foreground">الرجاء اختيار التصنيف الرئيسي أولاً</p>}
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="space-y-2 pt-4 border-t">
+                                <Label htmlFor="locationId" className="text-base font-semibold">الموقع الجغرافي / الغرفة *</Label>
+                                <Select name="locationId">
+                                    <SelectTrigger className="h-12 text-base">
+                                        <SelectValue placeholder="حدد موقع الجهاز (المعمل / الفرع)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">-- غير محدد --</SelectItem>
+                                        {locations.map((loc) => (
+                                            <SelectItem key={loc.id} value={loc.id}>
+                                                {loc.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </CardContent>
                     </Card>
@@ -369,6 +386,7 @@ export function NewAssetForm({ employees, inventoryItems, categories }: NewAsset
                                 💡 عند اختيار موظف، سيتم إنشاء سجل عهدة تلقائياً وتغيير حالة الأصل إلى "مستخدم".
                             </p>
                         </div>
+
                     </CardContent>
                 </Card>
 

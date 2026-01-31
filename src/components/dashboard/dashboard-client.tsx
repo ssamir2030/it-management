@@ -13,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { TrendChart, StatusPieChart, TypeDistributionChart, RequestsStatusChart, KPIGauge, DailyRequestsChart, TopEmployeesChart } from '@/components/dashboard/charts'
+import { RequestsOverview } from '@/components/dashboard/requests-overview'
+import { RecentActivities } from '@/components/dashboard/recent-activities'
 import { cn } from '@/lib/utils'
 import { ExportButton } from '@/components/ui/export-button'
 import * as XLSX from 'xlsx'
@@ -111,12 +113,16 @@ interface DashboardClientProps {
             totalLicensesCost: number;
             totalInventoryValue: number;
             monthlyRecurring: number;
-        }
+        };
+        requestsTrend?: {
+            date: string;
+            count: number;
+        }[];
     }
 }
 
 export function DashboardClient({ data }: DashboardClientProps) {
-    const { stats, quickStats, metrics, alerts, charts, activity, systemOverview, financials } = data
+    const { stats, quickStats, metrics, alerts, charts, activity, systemOverview, financials, requestsTrend } = data
 
     const handleExportExcel = () => {
         const wb = XLSX.utils.book_new()
@@ -219,8 +225,73 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
             {/* Dashboard Content - Linear Layout */}
 
-            {/* Hero Stats */}
-            <HeroStats stats={stats} quickStats={quickStats} />
+            {/* Dashboard Content - Linear Layout */}
+
+            {/* Premium KPI Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up stagger-1">
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Monitor className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-blue-100">إجمالي الأصول</CardTitle>
+                        <Monitor className="h-4 w-4 text-blue-100" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{stats.assets.total}</div>
+                        <p className="text-xs text-blue-100/80 flex items-center gap-1 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            <TrendingUp className="h-3 w-3" />
+                            {stats.assets.available} متاح حالياً
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Users className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-purple-100">الموظفين</CardTitle>
+                        <Users className="h-4 w-4 text-purple-100" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{stats.employees.total}</div>
+                        <p className="text-xs text-purple-100/80 flex items-center gap-1 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            <TrendingUp className="h-3 w-3" />
+                            {stats.employees.thisMonth} جديد هذا الشهر
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <LifeBuoy className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-amber-100">تذاكر الدعم</CardTitle>
+                        <LifeBuoy className="h-4 w-4 text-amber-100" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{stats.tickets.total}</div>
+                        <p className="text-xs text-amber-100/80 flex items-center gap-1 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            {stats.tickets.open} تذكرة مفتوحة
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <ClipboardList className="h-24 w-24" />
+                    </div>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-emerald-100">الطلبات</CardTitle>
+                        <ClipboardList className="h-4 w-4 text-emerald-100" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                        <div className="text-3xl font-bold">{metrics.totalRequests}</div>
+                        <p className="text-xs text-emerald-100/80 mt-1 font-medium bg-white/20 w-fit px-2 py-0.5 rounded-full backdrop-blur-sm">
+                            {metrics.approvedRequests} طلب موافق عليه
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Quick Actions */}
             <QuickActionsPanel />
@@ -241,7 +312,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
                     </div>
                     <h2 className="text-2xl font-bold tracking-tight">التحليلات والأداء</h2>
                 </div>
-                <ChartsSection data={charts} />
+                <ChartsSection data={charts} requestsTrend={requestsTrend} />
             </div>
 
             {/* System Overview Section */}
@@ -266,7 +337,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
                     </div>
                     <h2 className="text-2xl font-bold tracking-tight">سجل النشاطات</h2>
                 </div>
-                <ActivityFeed data={activity} />
+                <RecentActivities requests={activity.recentRequests} />
             </div>
         </div>
     )
@@ -342,141 +413,6 @@ function FinancialOverview({ data }: { data: NonNullable<DashboardClientProps['d
 }
 
 // Sub-components - Unified Statistics Section
-function HeroStats({ stats, quickStats }: { stats: DashboardClientProps['data']['stats'], quickStats?: DashboardClientProps['data']['quickStats'] }) {
-    const router = useRouter()
-    const { assets, employees, tickets } = stats
-
-    // Unified statistics - all in one place
-    const allStats = [
-        {
-            title: "إجمالي الأصول",
-            value: assets.total,
-            change: assets.growth,
-            icon: Monitor,
-            description: `${assets.available} متاح • ${assets.assigned} معين`,
-            color: "bg-blue-600",
-            href: "/assets"
-        },
-        {
-            title: "إجمالي الموظفين",
-            value: employees.total,
-            change: employees.growth,
-            icon: Users,
-            description: `${employees.thisMonth} جديد هذا الشهر`,
-            color: "bg-emerald-600",
-            href: "/employees"
-        },
-        {
-            title: "تذاكر الدعم",
-            value: tickets.total,
-            change: tickets.growth,
-            icon: LifeBuoy,
-            description: `${tickets.open} مفتوح • ${tickets.closed} مغلق`,
-            color: "bg-amber-500",
-            href: "/support"
-        },
-        {
-            title: "إجمالي الإدارات",
-            value: quickStats?.departments || 0,
-            change: 0,
-            icon: Building2,
-            description: "الإدارات المسجلة",
-            color: "bg-purple-600",
-            href: "/admin/departments"
-        },
-        {
-            title: "إجمالي المواقع",
-            value: quickStats?.locations || 0,
-            change: 0,
-            icon: MapPin,
-            description: "المواقع والفروع",
-            color: "bg-rose-600",
-            href: "/locations"
-        },
-        {
-            title: "المستخدمين",
-            value: quickStats?.users || 0,
-            change: 0,
-            icon: UserCheck,
-            description: "مستخدمي النظام",
-            color: "bg-cyan-600",
-            href: "/admin/users"
-        },
-        {
-            title: "المخزون",
-            value: quickStats?.inventory || 0,
-            change: 0,
-            icon: Boxes,
-            description: "عناصر المخزون",
-            color: "bg-indigo-600",
-            href: "/admin/inventory"
-        },
-        {
-            title: "الطلبات",
-            value: quickStats?.requests || 0,
-            change: 0,
-            icon: ClipboardList,
-            description: `${quickStats?.completedRequests || 0} مكتمل`,
-            color: "bg-teal-600",
-            href: "/requests"
-        },
-        {
-            title: "المستندات",
-            value: quickStats?.documents || 0,
-            change: 0,
-            icon: FileText,
-            description: "ملفات مرفقة",
-            color: "bg-slate-600",
-            href: "/documents"
-        }
-    ]
-
-    return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-3">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg">
-                    <BarChart3 className="h-7 w-7 text-white" />
-                </div>
-                <div>
-                    <h2 className="text-2xl font-black">الإحصائيات العامة</h2>
-                    <p className="text-sm text-muted-foreground">ملخص شامل للنظام</p>
-                </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
-                {allStats.map((stat, index) => (
-                    <Card
-                        key={index}
-                        onClick={() => router.push(stat.href)}
-                        className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                    >
-                        <CardContent className="p-5">
-                            <div className="flex items-center gap-4">
-                                <div className={cn("p-3 rounded-xl shadow-md", stat.color)}>
-                                    <stat.icon className="h-6 w-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <h3 className="text-3xl font-black tracking-tight">{stat.value.toLocaleString('ar')}</h3>
-                                        {stat.change !== 0 && (
-                                            <span className={cn(
-                                                "text-xs font-bold px-2 py-0.5 rounded-full",
-                                                stat.change >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                            )}>
-                                                {stat.change >= 0 ? '+' : ''}{stat.change}%
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    )
-}
 
 function QuickStatsGrid({ data }: { data: DashboardClientProps['data']['quickStats'] }) {
     const { inventory, requests, departments, users, locations, documents, completedRequests } = data
@@ -735,7 +671,7 @@ function CriticalAlerts({ data }: { data: DashboardClientProps['data']['alerts']
     )
 }
 
-function ChartsSection({ data }: { data: DashboardClientProps['data']['charts'] }) {
+function ChartsSection({ data, requestsTrend }: { data: DashboardClientProps['data']['charts'], requestsTrend?: DashboardClientProps['data']['requestsTrend'] }) {
     const { statusResult, typeResult, trendsResult, requestsResult } = data
 
     // Extract detailed analytics from requestsResult
@@ -784,10 +720,23 @@ function ChartsSection({ data }: { data: DashboardClientProps['data']['charts'] 
                 </div>
             )}
 
-            <div className="grid gap-6 lg:grid-cols-3">
-                {statusResult?.success && statusResult?.data && (
-                    <StatusPieChart data={statusResult.data} />
+            <div className="grid gap-6 lg:grid-cols-7">
+                {/* Main Trend Chart */}
+                {requestsTrend && (
+                    <div className="lg:col-span-4">
+                        <RequestsOverview data={requestsTrend} />
+                    </div>
                 )}
+
+                {/* Status Chart */}
+                <div className={cn("lg:col-span-3", !requestsTrend && "lg:col-span-7")}>
+                    {statusResult?.success && statusResult?.data && (
+                        <StatusPieChart data={statusResult.data} />
+                    )}
+                </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-3">
 
                 {typeResult?.success && typeResult?.data && (
                     <TypeDistributionChart data={typeResult.data} />

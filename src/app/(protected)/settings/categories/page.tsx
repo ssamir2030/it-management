@@ -1,33 +1,37 @@
 "use client"
 
-export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react'
 import { PremiumPageHeader } from '@/components/ui/premium-page-header'
 import { CategoryManager } from '@/components/settings/category-manager'
+import { LocationManager } from '@/components/settings/location-manager'
 import { getAssetCategories } from '@/app/actions/categories-v2'
-import { Tags, ArrowRight, Loader2 } from "lucide-react"
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getLocations } from '@/app/actions/locations'
+import { Tags, Loader2 } from "lucide-react"
 import { toast } from 'sonner'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export default function CategoriesSettingsPage() {
+export default function SystemVariablesPage() {
     const [loading, setLoading] = useState(true)
     const [categories, setCategories] = useState<any[]>([])
+    const [locations, setLocations] = useState<any[]>([])
 
     useEffect(() => {
         async function loadData() {
             try {
-                // Call the original action name to avoid alias issues
-                const res = await getAssetCategories()
-                if (!res.success) {
-                    console.error("Categories load failed:", res.error)
-                    toast.error("فشل تحميل التصنيفات: " + res.error)
-                }
-                setCategories(res.data || [])
+                const [catsRes, locsRes] = await Promise.all([
+                    getAssetCategories(),
+                    getLocations()
+                ])
+
+                if (!catsRes.success) console.error("Categories load failed:", catsRes.error)
+                if (!locsRes.success) console.error("Locations load failed")
+
+                setCategories(catsRes.data || [])
+                setLocations(locsRes.data || [])
             } catch (err) {
-                console.error("Categories unexpected error:", err)
-                toast.error("حدث خطأ غير متوقع")
+                console.error("Data load unexpected error:", err)
+                toast.error("حدث خطأ غير متوقع أثناء تحميل البيانات")
             } finally {
                 setLoading(false)
             }
@@ -46,16 +50,47 @@ export default function CategoriesSettingsPage() {
     return (
         <div className="space-y-6 p-6 pb-20">
             <PremiumPageHeader
-                title="إعدادات التصنيفات"
-                description="إدارة تصنيفات الأصول والأنواع المتاحة في النظام"
+                title="متغيرات النظام"
+                description="إدارة القوائم المنسدلة: التصنيفات، المواقع، وغيرها"
                 icon={Tags}
                 backLink="/settings"
                 backText="الإعدادات"
             />
 
-            <div className="w-full">
-                <CategoryManager initialCategories={categories} />
-            </div>
+            <Tabs defaultValue="main" className="w-full space-y-6">
+                <TabsList className="w-full justify-start h-12 bg-card border p-1 rounded-xl gap-2">
+                    <TabsTrigger
+                        value="main"
+                        className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10 rounded-lg text-base"
+                    >
+                        التصنيفات الرئيسية
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="sub"
+                        className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10 rounded-lg text-base"
+                    >
+                        التصنيفات الفرعية
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="locations"
+                        className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10 rounded-lg text-base"
+                    >
+                        المواقع الجغرافية
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="main" className="animate-in fade-in slide-in-from-top-2 duration-500">
+                    <CategoryManager initialCategories={categories} mode="main" />
+                </TabsContent>
+
+                <TabsContent value="sub" className="animate-in fade-in slide-in-from-top-2 duration-500">
+                    <CategoryManager initialCategories={categories} mode="sub" />
+                </TabsContent>
+
+                <TabsContent value="locations" className="animate-in fade-in slide-in-from-top-2 duration-500">
+                    <LocationManager initialLocations={locations} />
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

@@ -48,7 +48,7 @@ import {
     Megaphone,
     ShoppingCart,
     ClipboardList,
-    FileScan,
+
     Activity,
     Bell,
     Target
@@ -87,24 +87,24 @@ const sidebarItems = [
     { title: "تدقيق الأصول", href: "/admin/audits", icon: ClipboardList },
 
     // 📦 المخزون والمشتريات
-    { title: "المستودع", href: "/inventory", icon: Package },
-    { title: "المستهلكات", href: "/admin/consumables", icon: Printer },
+    { title: "المستودع", href: "/admin/inventory", icon: Package },
     { title: "المشتريات", href: "/admin/purchasing", icon: ShoppingCart },
-    { title: "ماسح الفواتير", href: "/admin/invoice-scanner", icon: FileScan },
+
     { title: "الموردين", href: "/suppliers", icon: Building2 },
 
     // 🔧 الصيانة
     { title: "الصيانة الدورية", href: "/admin/maintenance", icon: Wrench },
     { title: "الصيانة التنبؤية", href: "/admin/maintenance/predictions", icon: Activity },
-    { title: "إدارة الأجهزة", href: "/admin/equipment", icon: Laptop },
+    { title: "إدارة حجز الأجهزة", href: "/admin/equipment", icon: Laptop },
 
     // 🌐 الشبكات والبنية التحتية
     { title: "إدارة الشبكة", href: "/network", icon: Server },
-    { title: "اكتشاف الشبكة", href: "/admin/discovery", icon: FileScan }, // New Discovery Link
+    { title: "اكتشاف الشبكة", href: "/admin/discovery", icon: ScanBarcode },
+    { title: "مركز النشر", href: "/admin/deployment", icon: Package }, // Deployment Center
     { title: "إدارة العناوين IPAM", href: "/admin/ipam", icon: Network },
     { title: "كبائن السيرفرات", href: "/admin/racks", icon: Database },
     { title: "الاتصالات", href: "/telecom", icon: Wifi },
-    { title: "الوصول عن بعد", href: "/admin/remote-access", icon: ScreenShare },
+    { title: "التحكم عن بعد (Veyon)", href: "/admin/veyon", icon: ScreenShare },
 
     // 💼 البرامج والتراخيص
     { title: "دليل البرامج", href: "/admin/software", icon: AppWindow },

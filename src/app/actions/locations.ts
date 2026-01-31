@@ -16,6 +16,7 @@ export async function getLocations() {
                 }
             }
         })
+        console.log(`[getLocations] Fetched ${locations.length} locations`)
         return { success: true, data: locations }
     } catch (error) {
         return { success: false, error: "Failed to fetch locations" }

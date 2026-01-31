@@ -43,6 +43,75 @@ async function main() {
     }
     console.log('Created Locations')
 
+    // 4. Create Suppliers
+    const suppliers = await prisma.supplier.createMany({
+        data: [
+            { name: 'Jarir Bookstore', email: 'b2b@jarir.com', phone: '920000000' },
+            { name: 'Extra Stores', email: 'sales@extra.com' },
+            { name: 'Microsoft Arabia', email: 'support@microsoft.com' },
+        ],
+        skipDuplicates: true,
+    })
+    console.log('Created Suppliers')
+    const supplier = await prisma.supplier.findFirst()
+
+    // 5. Create Asset Categories (4-Tier Structure)
+    const laptopCat = await prisma.assetCategory.create({
+        data: { nameAr: 'أجهزة لابتوب', nameEn: 'Laptops', type: 'IT', prefix: 'LAP' }
+    })
+    const mouseCat = await prisma.assetCategory.create({
+        data: { nameAr: 'إكسسوارات', nameEn: 'Accessories', type: 'ACCESSORY' }
+    })
+    const softwareCat = await prisma.assetCategory.create({
+        data: { nameAr: 'برامج تشغيل', nameEn: 'Operating Systems', type: 'LICENSE' }
+    })
+
+    // 6. Create Assets (The "Snipe-IT" Core)
+    const location = await prisma.location.findFirst()
+    await prisma.asset.create({
+        data: {
+            name: 'HP EliteBook G8',
+            tag: 'LAP-1001',
+            type: 'HARDWARE',
+            status: 'AVAILABLE',
+            serialNumber: '5CD12345X',
+            model: 'EliteBook 840 G8',
+            manufacturer: 'HP',
+            locationId: location?.id,
+            categoryId: laptopCat.id,
+            price: 4500,
+            purchaseDate: new Date(),
+        }
+    })
+
+    // 7. Create Accessories (Quantitative)
+    await prisma.accessory.create({
+        data: {
+            name: 'Logitech Wireless Mouse M185',
+            totalQty: 50,
+            remainingQty: 50,
+            minQty: 10,
+            manufacturer: 'Logitech',
+            categoryId: mouseCat.id,
+            locationId: location?.id,
+            supplierId: supplier?.id,
+            cost: 45,
+        }
+    })
+
+    // 8. Create Licenses (Seats)
+    await prisma.softwareLicense.create({
+        data: {
+            name: 'Windows 11 Pro',
+            key: 'XXXX-YYYY-ZZZZ-AAAA',
+            type: 'PERPETUAL',
+            seats: 100,
+            usedSeats: 0,
+            cost: 800,
+            supplierId: supplier?.id,
+        }
+    })
+
     console.log('Seeding finished.')
 }
 

@@ -44,8 +44,11 @@ export function ConsumableForm({ open, onOpenChange, categories, onSuccess }: Co
                 name: data.name,
                 categoryId: data.categoryId,
                 minQuantity: parseInt(data.minQuantity),
-                description: data.description
-            })
+                description: data.description,
+                unitName: data.unitName,
+                bulkUnitName: data.bulkUnitName,
+                conversionFactor: parseInt(data.conversionFactor) || 1
+            } as any)
 
             if (res.success) {
                 toast.success('تمت إضافة الصنف بنجاح')
@@ -141,6 +144,39 @@ export function ConsumableForm({ open, onOpenChange, categories, onSuccess }: Co
                                                 className="h-11 bg-slate-950/50 border-slate-800"
                                             />
                                             <p className="text-xs text-muted-foreground">سيظهر تنبيه عندما تصل الكمية لهذا الرقم أو أقل</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid gap-6 md:grid-cols-3 pt-4 border-t border-slate-800/50">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="unitName" className="text-base">اسم الوحدة الصغرى</Label>
+                                            <Input
+                                                id="unitName"
+                                                defaultValue="بكت"
+                                                {...register('unitName')}
+                                                placeholder="مثال: بكت، حبة"
+                                                className="h-11 bg-slate-950/50 border-slate-800"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="bulkUnitName" className="text-base">اسم وحدة الجملة (اختياري)</Label>
+                                            <Input
+                                                id="bulkUnitName"
+                                                {...register('bulkUnitName')}
+                                                placeholder="مثال: كرتون، صندوق"
+                                                className="h-11 bg-slate-950/50 border-slate-800"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="conversionFactor" className="text-base">معامل التحويل (كم حبة في الوحدة الكبرى؟)</Label>
+                                            <Input
+                                                id="conversionFactor"
+                                                type="number"
+                                                defaultValue={1}
+                                                min={1}
+                                                {...register('conversionFactor')}
+                                                className="h-11 bg-slate-950/50 border-slate-800"
+                                            />
                                         </div>
                                     </div>
 

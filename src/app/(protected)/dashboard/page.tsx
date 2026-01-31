@@ -47,7 +47,9 @@ export default async function DashboardPage() {
         activeOperationalPlans,
         activeContracts,
         racks,
-        certificates
+        certificates,
+        // Request volume over last 30 days
+        requestsTrend
     ] = await Promise.all([
         getDashboardStats(),
         getFinancialStats(),
@@ -130,7 +132,17 @@ export default async function DashboardPage() {
         prisma.operationalPlanYear.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
         prisma.supplierContract.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
         prisma.rack.count().catch(() => 0),
-        prisma.certificate.count().catch(() => 0)
+        prisma.certificate.count().catch(() => 0),
+        // Request volume over last 30 days
+        prisma.$queryRaw`
+                SELECT
+                    strftime('%Y-%m-%d', createdAt) as day,
+                    count(*) as count
+                FROM Ticket
+                WHERE createdAt >= date('now', '-30 days')
+                GROUP BY day
+                ORDER BY day ASC
+            `.catch(() => []) as Promise<any>
     ])
 
     const stats = dashboardStats.data || {
@@ -204,7 +216,12 @@ export default async function DashboardPage() {
                     activeContracts,
                     racks,
                     certificates
-                }
+                },
+                // Pass requests trend data
+                requestsTrend: (requestsTrend as any[]).map((r: any) => ({
+                    date: r.day,
+                    count: Number(r.count)
+                }))
             }}
         />
     )

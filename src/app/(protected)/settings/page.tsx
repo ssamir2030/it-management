@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 
 import { PremiumPageHeader } from "@/components/ui/premium-page-header"
 import { Settings } from "lucide-react"
@@ -76,16 +75,8 @@ const settingsItems = [
         bg: "bg-yellow-50"
     },
     {
-        title: "المظهر",
-        description: "تخصيص الألوان والوضع الليلي",
-        icon: Palette,
-        href: "/settings/appearance",
-        color: "text-purple-500",
-        bg: "bg-purple-50"
-    },
-    {
-        title: "تصنيفات الأصول",
-        description: "إدارة أنواع وتصنيفات الأجهزة",
+        title: "متغيرات النظام",
+        description: "إدارة القوائم المنسدلة: التصنيفات، المواقع، وغيرها",
         icon: Tags,
         href: "/settings/categories",
         color: "text-cyan-500",
@@ -98,6 +89,14 @@ const settingsItems = [
         href: "/settings/automation",
         color: "text-yellow-600",
         bg: "bg-yellow-100"
+    },
+    {
+        title: "المظهر",
+        description: "تخصيص الألوان والوضع الليلي",
+        icon: Palette,
+        href: "/settings/appearance",
+        color: "text-purple-500",
+        bg: "bg-purple-50"
     }
 ]
 

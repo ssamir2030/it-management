@@ -83,6 +83,9 @@ export async function createConsumable(data: {
                 categoryId: data.categoryId,
                 minQuantity: data.minQuantity || 5, // Default threshold
                 description: data.description,
+                unitName: (data as any).unitName || "بكت",
+                bulkUnitName: (data as any).bulkUnitName,
+                conversionFactor: (data as any).conversionFactor || 1,
                 quantity: 0 // Start with 0, must be restocked
             }
         })
@@ -114,9 +117,9 @@ export async function restockConsumable(id: string, quantity: number, notes?: st
                 data: {
                     consumableId: id,
                     type: 'IN',
-                    quantity: quantity,
-                    notes,
-                    // Optionally link to admin who did it? Schema doesn't have userId yet, keeping simple
+                    quantity: (notes as any)?.originalQuantity || quantity,
+                    unitName: (notes as any)?.unitName,
+                    notes: typeof notes === 'string' ? notes : (notes as any)?.notes,
                 }
             })
 
@@ -155,8 +158,9 @@ export async function checkoutConsumable(id: string, employeeId: string, quantit
                     consumableId: id,
                     employeeId,
                     type: 'OUT',
-                    quantity,
-                    notes
+                    quantity: (notes as any)?.originalQuantity || quantity,
+                    unitName: (notes as any)?.unitName,
+                    notes: typeof notes === 'string' ? notes : (notes as any)?.notes,
                 }
             })
 
@@ -190,7 +194,7 @@ export async function getConsumableTransactions() {
         const transactions = await prisma.consumableTransaction.findMany({
             include: {
                 consumable: { include: { category: true } },
-                employee: true
+                employee: { include: { department: true } }
             },
             orderBy: { createdAt: 'desc' }
         })

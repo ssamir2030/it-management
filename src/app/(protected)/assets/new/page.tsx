@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
-import { createAsset, getEmployeesList, getInventoryItemsList, getAssetCategories } from "@/app/actions/assets"
+import { createAsset, getEmployeesList, getInventoryItemsList, getAssetCategories, getLocationsList } from "@/app/actions/assets"
+
 import { NewAssetForm } from "@/components/assets/new-asset-form"
 import { PremiumPageHeader } from '@/components/ui/premium-page-header'
 import { Monitor, ArrowRight } from "lucide-react"
@@ -8,13 +9,15 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default async function NewAssetPage() {
-    const [employees, inventoryItems, categoriesData] = await Promise.all([
+    const [employees, inventoryItems, categoriesData, locationsData] = await Promise.all([
         getEmployeesList(),
         getInventoryItemsList(),
-        getAssetCategories()
+        getAssetCategories(),
+        getLocationsList()
     ])
 
     const categories = categoriesData.success ? categoriesData.data : []
+    const locations = locationsData.success ? locationsData.data : []
 
     return (
         <div className="w-full py-6 space-y-6 px-6">
@@ -31,7 +34,12 @@ export default async function NewAssetPage() {
                     </Link>
                 }
             />
-            <NewAssetForm employees={employees} inventoryItems={inventoryItems} categories={categories} />
+            <NewAssetForm
+                employees={employees}
+                inventoryItems={inventoryItems}
+                categories={categories}
+                locations={locations.map(l => ({ id: l.id, name: l.name }))}
+            />
         </div>
     )
 }

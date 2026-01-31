@@ -65,7 +65,7 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
     }).length
 
     return (
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-0 bg-white dark:bg-slate-900/40 backdrop-blur-md border dark:border-slate-800/50">
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -91,7 +91,7 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
                         placeholder="ابحث بالعنوان، النوع، أو اسم الموظف..."
                         value={filters.search}
                         onChange={(e) => updateFilter('search', e.target.value)}
-                        className="pr-10"
+                        className="pr-10 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800"
                     />
                     {filters.search && (
                         <button
@@ -108,12 +108,13 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
                     <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">الحالة</Label>
                         <Select value={filters.status} onValueChange={(value) => updateFilter('status', value)}>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
                                 <SelectItem value="all">الكل</SelectItem>
                                 <SelectItem value="PENDING">قيد الانتظار</SelectItem>
+                                <SelectItem value="NEEDS_PURCHASE">بانتظار الشراء</SelectItem>
                                 <SelectItem value="IN_PROGRESS">قيد التنفيذ</SelectItem>
                                 <SelectItem value="COMPLETED">مكتمل</SelectItem>
                                 <SelectItem value="REJECTED">مرفوض</SelectItem>
@@ -127,7 +128,7 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
                         <div className="space-y-2">
                             <Label className="text-xs text-muted-foreground">النوع</Label>
                             <Select value={filters.type} onValueChange={(value) => updateFilter('type', value)}>
-                                <SelectTrigger>
+                                <SelectTrigger className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent dir="rtl">
@@ -146,7 +147,7 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
                     <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">الأولوية</Label>
                         <Select value={filters.priority} onValueChange={(value) => updateFilter('priority', value)}>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
@@ -163,7 +164,7 @@ export function RequestsFilter({ onFilterChange, totalCount, filteredCount, hide
                     <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">الترتيب</Label>
                         <Select value={filters.sortBy} onValueChange={(value) => updateFilter('sortBy', value)}>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent dir="rtl">

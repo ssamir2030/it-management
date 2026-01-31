@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { getAsset, getEmployeesList, getAssetCategories } from "@/app/actions/assets"
+import { getAsset, getEmployeesList, getAssetCategories, getLocationsList } from "@/app/actions/assets"
 import { EditAssetForm } from "@/components/assets/edit-asset-form"
 import { notFound } from "next/navigation"
 import { PremiumPageHeader } from '@/components/ui/premium-page-header'
@@ -16,9 +16,10 @@ interface EditAssetPageProps {
 
 export default async function EditAssetPage({ params }: EditAssetPageProps) {
     const { success, data: asset } = await getAsset(params.id)
-    const [employees, categoriesData] = await Promise.all([
+    const [employees, categoriesData, locationsData] = await Promise.all([
         getEmployeesList(),
-        getAssetCategories()
+        getAssetCategories(),
+        getLocationsList()
     ])
 
     const categories = categoriesData.success ? categoriesData.data : []
@@ -43,7 +44,12 @@ export default async function EditAssetPage({ params }: EditAssetPageProps) {
                 }
             />
             <div className="w-full">
-                <EditAssetForm asset={asset} employees={employees} categories={categories} />
+                <EditAssetForm
+                    asset={asset}
+                    employees={employees}
+                    categories={categories}
+                    locations={locationsData?.success ? locationsData.data.map(l => ({ id: l.id, name: l.name })) : []}
+                />
             </div>
         </div>
     )

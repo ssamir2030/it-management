@@ -169,7 +169,7 @@ export function ConsumablesClient({ initialData, categories, lowStockCount }: Co
                                     </TableCell>
                                     <TableCell className="text-center">
                                         <Badge variant={item.quantity <= item.minQuantity ? "destructive" : "secondary"}>
-                                            {item.quantity}
+                                            {item.quantity} {item.unitName}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-center text-muted-foreground">{item.minQuantity}</TableCell>

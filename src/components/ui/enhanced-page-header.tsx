@@ -64,7 +64,7 @@ export function EnhancedPageHeader({
                     {stats.map((stat, index) => (
                         <div
                             key={index}
-                            className="bg-card border rounded-xl p-4 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                            className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow"
                         >
                             <div className="flex items-center gap-3">
                                 {stat.icon && (

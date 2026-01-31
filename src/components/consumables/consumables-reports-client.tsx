@@ -145,13 +145,13 @@ export function ConsumablesReportsClient({ initialTransactions }: ConsumablesRep
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="text-right">التاريخ</TableHead>
-                                <TableHead className="text-right">نوع الحركة</TableHead>
-                                <TableHead className="text-right">المادة</TableHead>
-                                <TableHead className="text-right">الكمية</TableHead>
-                                <TableHead className="text-right">المستلم / المصدر</TableHead>
-                                <TableHead className="text-right">القسم</TableHead>
-                                <TableHead className="text-right">ملاحظات</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">التاريخ</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">نوع الحركة</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">المادة</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">الكمية</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">المستلم / المصدر</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">القسم</TableHead>
+                                <TableHead className="text-center whitespace-nowrap">ملاحظات</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -164,16 +164,16 @@ export function ConsumablesReportsClient({ initialTransactions }: ConsumablesRep
                             ) : (
                                 filteredTransactions.map((tx) => (
                                     <TableRow key={tx.id} className="group hover:bg-muted/50 transition-colors">
-                                        <TableCell className="font-medium">
-                                            <div className="flex items-center gap-2">
+                                        <TableCell className="font-medium text-center">
+                                            <div className="flex items-center justify-center gap-2">
                                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                                 {format(new Date(tx.createdAt), "dd/MM/yyyy", { locale: ar })}
                                             </div>
-                                            <span className="text-xs text-muted-foreground mr-6">
+                                            <span className="text-xs text-muted-foreground">
                                                 {format(new Date(tx.createdAt), "hh:mm a", { locale: ar })}
                                             </span>
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-center">
                                             <Badge variant={tx.type === 'IN' ? 'default' : 'secondary'} className={
                                                 tx.type === 'IN'
                                                     ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400"
@@ -182,14 +182,43 @@ export function ConsumablesReportsClient({ initialTransactions }: ConsumablesRep
                                                 {tx.type === 'IN' ? 'توريد' : 'صرف'}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="font-semibold">{tx.consumable.name}</TableCell>
-                                        <TableCell>
-                                            <span className="font-bold text-lg">{tx.quantity}</span>
-                                            <span className="text-xs text-muted-foreground mr-1">{tx.consumable.unit}</span>
+                                        <TableCell className="font-semibold text-center truncate max-w-[250px]">
+                                            {(() => {
+                                                const name = tx.consumable.name || "";
+                                                const categoryName = (tx.consumable.category?.name || "").toLowerCase();
+
+                                                // Robust prefix detection (check both AR and EN)
+                                                let prefix = "";
+                                                if (categoryName.includes("حبر") || categoryName.includes("أحبار") || categoryName.includes("ink") || categoryName.includes("toner") || name.toLowerCase().includes("ink")) {
+                                                    prefix = "حبر: ";
+                                                } else if (categoryName.includes("ورق") || categoryName.includes("أوراق") || categoryName.includes("paper")) {
+                                                    prefix = "ورق: ";
+                                                }
+
+                                                // Handle combined items (Sets)
+                                                if (name.includes('|')) {
+                                                    // Try to extract a common model number/name
+                                                    // Matches "Epson 103", "HP 85A", "Canon 440", etc.
+                                                    const modelMatch = name.match(/([a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)?)/);
+                                                    const model = modelMatch ? modelMatch[0].trim() : "";
+
+                                                    // If we found a model, use it. Otherwise generic.
+                                                    // Force "حبر" context for sets as they are usually inks
+                                                    return `حبر: طقم أحبار ${model}`.trim();
+                                                }
+
+                                                return `${prefix}${name}`;
+                                            })()}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-center">
+                                            <span className="font-bold text-lg">{tx.quantity}</span>
+                                            <span className="text-xs text-muted-foreground mr-1">
+                                                {tx.unitName || tx.consumable.unitName || tx.consumable.unit || '-'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-center">
                                             {tx.employee ? (
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700">
                                                         {tx.employee.name.charAt(0)}
                                                     </div>
@@ -199,14 +228,14 @@ export function ConsumablesReportsClient({ initialTransactions }: ConsumablesRep
                                                 <span className="text-muted-foreground">-</span>
                                             )}
                                         </TableCell>
-                                        <TableCell>
-                                            {tx.department ? (
-                                                <Badge variant="outline">{tx.department}</Badge>
+                                        <TableCell className="text-center whitespace-nowrap">
+                                            {tx.employee?.department?.name ? (
+                                                <Badge variant="outline" className="font-medium">{tx.employee.department.name}</Badge>
                                             ) : (
                                                 <span className="text-muted-foreground text-xs">-</span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="max-w-[200px] truncate text-muted-foreground" title={tx.notes}>
+                                        <TableCell className="max-w-[200px] truncate text-muted-foreground text-center" title={tx.notes}>
                                             {tx.notes || "-"}
                                         </TableCell>
                                     </TableRow>

@@ -123,7 +123,7 @@ function createReportHTML(options: ExportOptions) {
     const thead = `
         <tr style="background-color: #1e293b; color: white;">
             ${columns.map(col => `
-                <th style="padding: 12px 16px; text-align: right; font-weight: bold; border-bottom: 2px solid #0f172a; font-size: 13px; white-space: nowrap;">
+                <th style="padding: 12px 16px; text-align: center; font-weight: bold; border-bottom: 2px solid #0f172a; font-size: 13px; white-space: nowrap;">
                     ${col.header}
                 </th>
             `).join('')}
@@ -143,7 +143,7 @@ function createReportHTML(options: ExportOptions) {
                 value = value ? 'نعم' : 'لا'
             }
             return `
-                        <td style="padding: 10px 16px; text-align: right; color: #334155; font-size: 12px; vertical-align: middle;">
+                        <td style="padding: 10px 16px; text-align: center; color: #334155; font-size: 11px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
                             ${value ?? '-'}
                         </td>
                     `

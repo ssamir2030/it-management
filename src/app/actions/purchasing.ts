@@ -8,7 +8,7 @@ export async function getPendingRequests() {
         console.log("🔍 Fetching pending requests for Purchasing...")
         const requests = await prisma.employeeRequest.findMany({
             where: {
-                status: { in: ['PENDING', 'APPROVED', 'IN_PROGRESS'] }, // Add IN_PROGRESS just in case
+                status: 'NEEDS_PURCHASE',
                 type: 'CONSUMABLE'
             },
             include: {
@@ -164,10 +164,10 @@ export async function receivePurchaseOrder(id: string) {
                 }
             }
 
-            // 3. Find and complete matching employee requests
-            const pendingRequests = await tx.employeeRequest.findMany({
+            // 3. Find and update matching employee requests
+            const matchingRequests = await tx.employeeRequest.findMany({
                 where: {
-                    status: { in: ['PENDING', 'APPROVED', 'IN_PROGRESS'] },
+                    status: { in: ['PENDING', 'APPROVED', 'IN_PROGRESS', 'NEEDS_PURCHASE'] },
                     type: 'CONSUMABLE'
                 },
                 include: {
@@ -175,45 +175,44 @@ export async function receivePurchaseOrder(id: string) {
                 }
             })
 
-            for (const request of pendingRequests) {
+            for (const request of matchingRequests) {
                 // Check if request matches any of the received items
                 const requestDetails = (request.details || '').toLowerCase()
                 const matches = itemNames.some(name => requestDetails.includes(name))
 
                 if (matches) {
-                    // Update request status to COMPLETED
+                    // تحويل الطلب إلى PENDING ليتمكن فريق IT من صرفه
                     await tx.employeeRequest.update({
                         where: { id: request.id },
                         data: {
-                            status: 'COMPLETED',
-                            completedAt: new Date(),
+                            status: 'PENDING',
                             adminNotes: `تم توفير الطلب من أمر الشراء #${po.id.slice(-6)}`
                         }
                     })
 
-                    // Add timeline entry
+                    // إضافة سجل في التايم لاين
                     await tx.requestTimeline.create({
                         data: {
                             requestId: request.id,
-                            status: 'COMPLETED',
-                            title: 'تم توفير الطلب',
-                            description: `تم استلام الصنف المطلوب من أمر الشراء #${po.id.slice(-6)}`,
+                            status: 'PENDING',
+                            title: 'الأصناف متوفرة بالمستودع',
+                            description: `تم استلام الصنف المطلوب من أمر الشراء #${po.id.slice(-6)} وجاهز للصرف الآن`,
                             actorName: 'النظام'
                         }
                     })
 
-                    // Send notification to employee
+                    // إرسال إشعار للموظف ليعلم أن طلبه أصبح متاحاً
                     await tx.employeeNotification.create({
                         data: {
                             employeeId: request.employeeId,
-                            type: 'REQUEST_COMPLETED',
-                            title: '✅ طلبك جاهز للاستلام',
-                            message: `تم توفير طلبك (${request.type}) ويمكنك استلامه من قسم تقنية المعلومات`,
+                            type: 'REQUEST_UPDATED',
+                            title: '📦 صنفك متوفر الآن',
+                            message: `تم توفير الطلب (${request.type}) في المستودع وجار مراجعة الصرف من قبل الـ IT`,
                             isRead: false
                         }
                     })
 
-                    console.log(`✅ Completed employee request ${request.id} for ${request.employee.name}`)
+                    console.log(`✅ Updated employee request ${request.id} status to PENDING`)
                 }
             }
         })

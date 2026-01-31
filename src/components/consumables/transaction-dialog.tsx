@@ -40,6 +40,7 @@ export function TransactionDialog({ open, onOpenChange, consumable, type, onSucc
     const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm()
 
     const quantity = watch('quantity')
+    const [selectedUnitType, setSelectedUnitType] = useState<'BASE' | 'BULK'>('BASE')
 
     useEffect(() => {
         if (open && type === 'OUT') {
@@ -56,12 +57,20 @@ export function TransactionDialog({ open, onOpenChange, consumable, type, onSucc
         setIsLoading(true)
         try {
             let res
-            const qty = parseInt(data.quantity)
+            const originalQty = parseInt(data.quantity)
+            const factor = selectedUnitType === 'BULK' ? (consumable.conversionFactor || 1) : 1
+            const totalQty = originalQty * factor
+
+            const txnData = {
+                notes: data.notes,
+                unitName: selectedUnitType === 'BULK' ? consumable.bulkUnitName : consumable.unitName,
+                originalQuantity: originalQty
+            }
 
             if (type === 'IN') {
-                res = await restockConsumable(consumable.id, qty, data.notes)
+                res = await restockConsumable(consumable.id, totalQty, txnData as any)
             } else {
-                res = await checkoutConsumable(consumable.id, data.employeeId, qty, data.notes)
+                res = await checkoutConsumable(consumable.id, data.employeeId, totalQty, txnData as any)
             }
 
             if (res.success) {
@@ -108,17 +117,42 @@ export function TransactionDialog({ open, onOpenChange, consumable, type, onSucc
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
                         <Label>الكمية</Label>
-                        <Input
-                            type="number"
-                            min={1}
-                            max={type === 'OUT' ? consumable.quantity : undefined}
-                            required
-                            {...register('quantity', {
-                                required: true,
-                                min: 1,
-                                max: type === 'OUT' ? { value: consumable.quantity, message: 'لا توجد كمية كافية' } : undefined
-                            })}
-                        />
+                        <div className="flex gap-2">
+                            <Input
+                                type="number"
+                                min={1}
+                                max={type === 'OUT' ? (selectedUnitType === 'BULK' ? Math.floor(consumable.quantity / (consumable.conversionFactor || 1)) : consumable.quantity) : undefined}
+                                required
+                                {...register('quantity', {
+                                    required: true,
+                                    min: 1,
+                                    max: type === 'OUT' ? {
+                                        value: selectedUnitType === 'BULK' ? Math.floor(consumable.quantity / (consumable.conversionFactor || 1)) : consumable.quantity,
+                                        message: 'لا توجد كمية كافية'
+                                    } : undefined
+                                })}
+                                className="flex-1"
+                            />
+                            {consumable.bulkUnitName && (
+                                <Select
+                                    value={selectedUnitType}
+                                    onValueChange={(val: any) => setSelectedUnitType(val)}
+                                >
+                                    <SelectTrigger className="w-[120px]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="BASE">{consumable.unitName || 'بكت'}</SelectItem>
+                                        <SelectItem value="BULK">{consumable.bulkUnitName}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        </div>
+                        {selectedUnitType === 'BULK' && (
+                            <p className="text-xs text-blue-600 font-medium">
+                                إجمالي {consumable.unitName}: {(watch('quantity') || 0) * (consumable.conversionFactor || 1)}
+                            </p>
+                        )}
                         {errors.quantity && <p className="text-sm text-red-500">{errors.quantity.message as string}</p>}
                     </div>
 

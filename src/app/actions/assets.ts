@@ -13,6 +13,11 @@ export async function getAssets() {
                     select: {
                         name: true
                     }
+                },
+                location: {
+                    select: {
+                        name: true
+                    }
                 }
             }
         })
@@ -93,6 +98,7 @@ export async function createAsset(formData: FormData) {
                 manufacturer,
                 status: employeeId ? "ASSIGNED" : (status || "AVAILABLE"),
                 employeeId: employeeId || null,
+                locationId: (formData.get("locationId") as string) || null,
                 categoryId: categoryId || null,
                 ipAddress: (formData.get("ipAddress") as string) || null,
                 anydeskId: (formData.get("anydeskId") as string) || null,
@@ -247,6 +253,7 @@ export async function updateAsset(id: string, formData: FormData) {
     const anydeskId = formData.get("anydeskId") as string
     const dwServiceId = formData.get("dwServiceId") as string
     const categoryId = formData.get("categoryId") as string
+    const locationId = formData.get("locationId") as string
 
     // Lifecycle Fields
     const purchaseDate = formData.get("purchaseDate") ? new Date(formData.get("purchaseDate") as string) : null
@@ -274,6 +281,7 @@ export async function updateAsset(id: string, formData: FormData) {
                 status: validEmployeeId ? "ASSIGNED" : (status || "AVAILABLE"),
                 employeeId: validEmployeeId,
                 categoryId: categoryId || null,
+                locationId: locationId || null,
                 ipAddress: ipAddress || null,
                 anydeskId: anydeskId || null,
                 dwServiceId: dwServiceId || null,
@@ -404,6 +412,22 @@ export async function getAvailableAssets() {
         return { success: true, data: assets }
     } catch (error) {
         console.error("Error fetching available assets:", error)
+        return { success: false, data: [] }
+    }
+}
+
+export async function getLocationsList() {
+    try {
+        const locations = await prisma.location.findMany({
+            select: {
+                id: true,
+                name: true
+            },
+            orderBy: { name: 'asc' }
+        })
+        return { success: true, data: locations }
+    } catch (error) {
+        console.error("Error fetching locations:", error)
         return { success: false, data: [] }
     }
 }

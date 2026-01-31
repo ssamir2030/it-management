@@ -22,6 +22,9 @@ interface ShellProps {
 
 function ShellContent({ children, adminUser }: ShellProps) {
     const pathname = usePathname();
+    // Force layout refresh check
+    console.log('[Shell] Rendering layout for:', pathname);
+    
     const isLoginPage = pathname?.startsWith("/login");
     const isPortalPage = pathname?.startsWith("/portal");
     const { isOpen, isMounted } = useSidebar();

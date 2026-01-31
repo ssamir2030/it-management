@@ -39,7 +39,7 @@ type Transaction = {
     createdAt: Date
 }
 
-const CATEGORIES = ["INK", "PAPER", "ACCESSORY", "OTHER"]
+const CATEGORIES = ["INK", "PAPER", "ACCESSORY", "COMPUTER", "PERIPHERAL", "OTHER"]
 
 export default function InventoryPage() {
     const { toast } = useToast()
@@ -160,14 +160,13 @@ export default function InventoryPage() {
         }
         setDeleteAlert({ open: false, item: null })
     }
-
     // View: Add New Item
     if (viewMode === 'ADD') {
         return (
             <div className="container mx-auto p-6 space-y-6" dir="rtl">
                 <PremiumPageHeader
-                    title="إضافة صنف جديد"
-                    description="تعريف صنف جديد (حبر، ورق، جهاز..) لإضافته للمخزون"
+                    title="إضافة صنف 📦"
+                    description="تعريف صنف جديد (جهاز، حبر، قطعة غيار..) لإضافته للمستودع"
                     icon={Save}
                     rightContent={
                         <Button variant="ghost" className="gap-2" onClick={() => setViewMode('LIST')}>
@@ -255,13 +254,13 @@ export default function InventoryPage() {
     return (
         <div className="container mx-auto p-6 space-y-6" dir="rtl">
             <PremiumPageHeader
-                title="إدارة المخزون (Consumables)"
-                description="تتبع الأحبار، الأوراق، والملحقات وإدارة الكميات المتوفرة"
+                title="المستودع الرئيسي"
+                description="إدارة المخزون الشاملة: أجهزة، قطع غيار، أحبار، ومستهلكات"
                 icon={Package}
                 rightContent={
                     <Button onClick={() => setViewMode('ADD')} className="gap-2 bg-blue-600 hover:bg-blue-700">
                         <Plus className="h-4 w-4" />
-                        إضافة صنف جديد
+                        إضافة صنف 📦
                     </Button>
                 }
             />
@@ -350,10 +349,10 @@ export default function InventoryPage() {
                         </TableBody>
                     </Table>
                 </CardContent>
-            </Card>
+            </Card >
 
             {/* Stock Update Dialog */}
-            <Dialog open={isStockOpen} onOpenChange={setIsStockOpen}>
+            < Dialog open={isStockOpen} onOpenChange={setIsStockOpen} >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>تعديل الرصيد: {selectedItem?.name}</DialogTitle>
@@ -400,10 +399,10 @@ export default function InventoryPage() {
                         <Button onClick={handleStockUpdate}>تحديث الرصيد</Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
 
             {/* History Dialog */}
-            <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+            < Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen} >
                 <DialogContent className="max-w-4xl">
                     <DialogHeader>
                         <DialogTitle>سجل حركات الصنف: {selectedItem?.name}</DialogTitle>
@@ -438,10 +437,10 @@ export default function InventoryPage() {
                         </Table>
                     </div>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
 
             {/* Delete Confirmation Alert */}
-            <AlertDialog open={deleteAlert.open} onOpenChange={(open) => setDeleteAlert({ ...deleteAlert, open })}>
+            < AlertDialog open={deleteAlert.open} onOpenChange={(open) => setDeleteAlert({ ...deleteAlert, open })}>
                 <AlertDialogContent dir="rtl">
                     <AlertDialogHeader>
                         <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
@@ -456,7 +455,7 @@ export default function InventoryPage() {
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
-            </AlertDialog>
-        </div>
+            </AlertDialog >
+        </div >
     )
 }

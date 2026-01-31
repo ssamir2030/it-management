@@ -55,6 +55,9 @@ interface Asset {
     employee?: {
         name: string
     } | null
+    location?: {
+        name: string
+    } | null
 }
 
 interface AssetClientProps {
@@ -318,6 +321,7 @@ export function AssetClient({ assets }: AssetClientProps) {
                                 <TableHead className="text-right">Tag</TableHead>
                                 <TableHead className="text-right">النوع</TableHead>
                                 <TableHead className="text-right">المستخدم</TableHead>
+                                <TableHead className="text-right">الموقع</TableHead>
                                 <TableHead className="text-right">الحالة</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
@@ -325,7 +329,7 @@ export function AssetClient({ assets }: AssetClientProps) {
                         <TableBody>
                             {paginatedAssets.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="h-40 text-center">
+                                    <TableCell colSpan={8} className="h-40 text-center">
                                         <div className="flex flex-col items-center gap-3 text-muted-foreground">
                                             <div className="p-4 rounded-full bg-muted/50">
                                                 <Search className="h-8 w-8 opacity-50" />
@@ -386,6 +390,19 @@ export function AssetClient({ assets }: AssetClientProps) {
                                                 </div>
                                             ) : (
                                                 <span className="text-muted-foreground text-sm">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {asset.location ? (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                                    <span className="text-sm">{asset.location.name}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                                                    <span className="text-muted-foreground text-sm">غير محدد</span>
+                                                </div>
                                             )}
                                         </TableCell>
                                         <TableCell>

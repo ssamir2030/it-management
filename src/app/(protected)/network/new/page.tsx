@@ -8,7 +8,14 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default async function NewNetworkDevicePage() {
-    const { data: locations } = await getLocations()
+    const res = await getLocations()
+    console.log('[NewNetworkDevicePage] Fetching locations result:', res.success, 'Count:', res.data?.length)
+
+    // Sanitize data to avoid serialization issues
+    const locations = res.data?.map(l => ({
+        id: l.id,
+        name: l.name
+    })) || []
 
     return (
         <div className="w-full py-6 space-y-6 px-6">

@@ -14,7 +14,7 @@ export function PredictiveMaintenanceClient({ predictions }: { predictions: Pred
     const lowRisk = predictions.filter(p => p.riskLevel === 'LOW').length
 
     const getRiskBadge = (level: string) => {
-        const styles: Record<string, string> = { HIGH: 'bg-red-100 text-red-700', MEDIUM: 'bg-yellow-100 text-yellow-700', LOW: 'bg-green-100 text-green-700' }
+        const styles: Record<string, string> = { HIGH: 'bg-red-500/20 text-red-500 border-red-500/30', MEDIUM: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30', LOW: 'bg-green-500/20 text-green-500 border-green-500/30' }
         const labels: Record<string, string> = { HIGH: 'خطورة عالية', MEDIUM: 'متوسط', LOW: 'منخفض' }
         return <Badge className={styles[level]}>{labels[level]}</Badge>
     }
@@ -23,10 +23,10 @@ export function PredictiveMaintenanceClient({ predictions }: { predictions: Pred
         <div className="w-full content-spacing py-6">
             <PremiumPageHeader title="الصيانة التنبؤية" description="تحليل ذكي للتنبؤ بأعطال الأجهزة" icon={Activity} />
             <div className="grid grid-cols-4 gap-4 mb-6">
-                <Card><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-slate-500/20 rounded-xl"><Monitor className="h-6 w-6" /></div><div><p className="text-sm text-muted-foreground">إجمالي</p><p className="text-3xl font-bold">{predictions.length}</p></div></div></CardContent></Card>
-                <Card className="border-red-200 bg-red-50/50"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-red-500/20 rounded-xl"><AlertTriangle className="h-6 w-6 text-red-600" /></div><div><p className="text-sm text-muted-foreground">خطورة عالية</p><p className="text-3xl font-bold text-red-600">{highRisk}</p></div></div></CardContent></Card>
-                <Card className="border-yellow-200 bg-yellow-50/50"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-yellow-500/20 rounded-xl"><AlertCircle className="h-6 w-6 text-yellow-600" /></div><div><p className="text-sm text-muted-foreground">متوسط</p><p className="text-3xl font-bold text-yellow-600">{mediumRisk}</p></div></div></CardContent></Card>
-                <Card className="border-green-200 bg-green-50/50"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-green-500/20 rounded-xl"><CheckCircle2 className="h-6 w-6 text-green-600" /></div><div><p className="text-sm text-muted-foreground">منخفض</p><p className="text-3xl font-bold text-green-600">{lowRisk}</p></div></div></CardContent></Card>
+                <Card className="border-border/50"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-slate-500/20 rounded-xl"><Monitor className="h-6 w-6" /></div><div><p className="text-sm text-muted-foreground">إجمالي</p><p className="text-3xl font-bold">{predictions.length}</p></div></div></CardContent></Card>
+                <Card className="border-red-500/30 bg-red-500/10"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-red-500/20 rounded-xl"><AlertTriangle className="h-6 w-6 text-red-500" /></div><div><p className="text-sm text-muted-foreground">خطورة عالية</p><p className="text-3xl font-bold text-red-500">{highRisk}</p></div></div></CardContent></Card>
+                <Card className="border-yellow-500/30 bg-yellow-500/10"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-yellow-500/20 rounded-xl"><AlertCircle className="h-6 w-6 text-yellow-500" /></div><div><p className="text-sm text-muted-foreground">متوسط</p><p className="text-3xl font-bold text-yellow-500">{mediumRisk}</p></div></div></CardContent></Card>
+                <Card className="border-green-500/30 bg-green-500/10"><CardContent className="pt-6"><div className="flex items-center gap-4"><div className="p-3 bg-green-500/20 rounded-xl"><CheckCircle2 className="h-6 w-6 text-green-500" /></div><div><p className="text-sm text-muted-foreground">منخفض</p><p className="text-3xl font-bold text-green-500">{lowRisk}</p></div></div></CardContent></Card>
             </div>
             <Card><CardHeader><CardTitle>الأجهزة التي تحتاج اهتمام</CardTitle></CardHeader><CardContent>
                 <Table><TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>Tag</TableHead><TableHead>الموظف</TableHead><TableHead>الخطورة</TableHead><TableHead>نسبة الخطر</TableHead><TableHead>التوصيات</TableHead></TableRow></TableHeader>

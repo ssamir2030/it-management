@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2, Search, Plus, CheckCircle2, Monitor, Wifi, Server, Eye, Download } from "lucide-react"
+import { Loader2, Search, Plus, CheckCircle2, Monitor, Wifi, Server, Eye, Download, RefreshCw, Globe, Network } from "lucide-react"
 import { scanNetworkRange, getDiscoveredDevices, convertToAsset } from "@/app/actions/network-scanner"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
@@ -17,6 +17,7 @@ export function NetworkDiscoveryClient() {
     const [rangeStart, setRangeStart] = useState("192.168.1.1")
     const [rangeEnd, setRangeEnd] = useState("192.168.1.50")
     const [isScanning, setIsScanning] = useState(false)
+    const [isSyncing, setIsSyncing] = useState(false)
     const [devices, setDevices] = useState<any[]>([])
 
     // Asset Import State
@@ -83,6 +84,28 @@ export function NetworkDiscoveryClient() {
         setIsDetailsOpen(true)
     }
 
+    const handleSync = async () => {
+        setIsSyncing(true)
+        toast.info("جاري مزامنة الأصول...", { description: "تحديث البيانات الفنية من الأجهزة المكتشفة" })
+
+        try {
+            const response = await fetch('/api/assets/sync', { method: 'GET' })
+            const result = await response.json()
+
+            if (result.success) {
+                toast.success(`تمت المزامنة بنجاح!`, {
+                    description: `تم تحديث ${result.synced} أصل، ${result.failed} فشل`
+                })
+            } else {
+                toast.error("خطأ في المزامنة", { description: result.error })
+            }
+        } catch (error) {
+            toast.error("حدث خطأ غير متوقع")
+        } finally {
+            setIsSyncing(false)
+        }
+    }
+
     return (
         <div className="space-y-6">
             {/* Scan Controls */}
@@ -129,7 +152,20 @@ export function NetworkDiscoveryClient() {
                     </div>
 
 
-                    <div className="mt-4 pt-4 border-t flex justify-end">
+                    <div className="mt-4 pt-4 border-t flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={handleSync}
+                            disabled={isSyncing}
+                            className="gap-2"
+                        >
+                            {isSyncing ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <RefreshCw className="h-4 w-4" />
+                            )}
+                            {isSyncing ? "جاري المزامنة..." : "مزامنة الأصول"}
+                        </Button>
                         <Button variant="outline" asChild className="gap-2">
                             <a href="/agent.ps1" download="agent.ps1">
                                 <Download className="h-4 w-4" />
@@ -155,6 +191,7 @@ export function NetworkDiscoveryClient() {
                                 <TableRow>
                                     <TableHead className="text-right">عنوان IP</TableHead>
                                     <TableHead className="text-right">اسم الجهاز (Hostname)</TableHead>
+                                    <TableHead className="text-right">نوع الاتصال</TableHead>
                                     <TableHead className="text-right">الحالة</TableHead>
                                     <TableHead className="text-right">آخر ظهور</TableHead>
                                     <TableHead className="text-right">المنافذ</TableHead>
@@ -164,7 +201,7 @@ export function NetworkDiscoveryClient() {
                             <TableBody>
                                 {devices.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">
+                                        <TableCell colSpan={7} className="h-24 text-center">
                                             لا توجد أجهزة مكتشفة بعد. ابدأ الفحص أعلاه.
                                         </TableCell>
                                     </TableRow>
@@ -183,12 +220,34 @@ export function NetworkDiscoveryClient() {
                                                 )}
                                             </TableCell>
                                             <TableCell>
+                                                {(() => {
+                                                    const details = device.details ? JSON.parse(device.details) : {}
+                                                    const connType = details.connectionType || 'LAN'
+                                                    return connType === 'WAN' ? (
+                                                        <Badge variant="secondary" className="bg-purple-500/20 text-purple-400 border-purple-500/30 gap-1">
+                                                            <Globe className="h-3 w-3" />
+                                                            خارجي (WAN)
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30 gap-1">
+                                                            <Network className="h-3 w-3" />
+                                                            داخلي (LAN)
+                                                        </Badge>
+                                                    )
+                                                })()}
+                                            </TableCell>
+                                            <TableCell>
                                                 {device.status === 'NEW' ? (
-                                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 ">جديد</Badge>
+                                                    <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">جديد</Badge>
                                                 ) : device.status === 'ADDED' ? (
-                                                    <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                    <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
                                                         <CheckCircle2 className="h-3 w-3 ml-1" />
                                                         مضاف
+                                                    </Badge>
+                                                ) : device.status === 'AGENT_CONNECTED' ? (
+                                                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                                                        <Wifi className="h-3 w-3 ml-1" />
+                                                        متصل
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="outline">{device.status}</Badge>
@@ -197,9 +256,7 @@ export function NetworkDiscoveryClient() {
                                             <TableCell className="text-muted-foreground text-sm">
                                                 {new Date(device.lastSeen).toLocaleString('ar-SA')}
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground text-sm font-mono text-xs">
-                                                {device.details ? JSON.parse(device.details).port : '-'}
-                                            </TableCell>
+
                                             <TableCell onClick={(e) => e.stopPropagation()}>
                                                 <div className="flex gap-2">
                                                     <Button size="sm" variant="ghost" onClick={() => openDetails(device)}>

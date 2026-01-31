@@ -7,7 +7,7 @@ export async function GET() {
     try {
         const requests = await prisma.employeeRequest.findMany({
             where: {
-                type: { not: 'SUPPORT' } // استبعاد طلبات الدعم الفني
+                type: { not: 'SUPPORT' }
             },
             include: {
                 employee: {

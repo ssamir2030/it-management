@@ -168,7 +168,7 @@ export default function PurchasingPage() {
     return (
         <div className="space-y-6" dir="rtl">
             <PremiumPageHeader
-                title="إدارة المشتريات"
+                title="إدارة المشتريات والطلبات"
                 description="متابعة طلبات الشراء، الموردين، واستلام الشحنات للمستودع"
                 icon={ShoppingCart}
             />

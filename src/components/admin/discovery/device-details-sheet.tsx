@@ -143,28 +143,53 @@ export function DeviceDetailsSheet({ open, onOpenChange, device, onAddToInventor
                     </div>
 
                     {/* Storage Info */}
-                    {detailsJson.disks && detailsJson.disks.length > 0 && (
+                    {detailsJson.disks && (
                         <div>
                             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                 <HardDrive className="h-5 w-5 text-amber-500" />
                                 Storage
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {detailsJson.disks.map((disk: any, idx: number) => (
-                                    <div key={idx} className="p-4 border rounded-xl bg-card">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="font-bold text-lg">{disk.drive}</span>
-                                            <Badge variant="outline">{disk.size} Total</Badge>
-                                        </div>
-                                        <div className="w-full bg-secondary h-2.5 rounded-full mb-1">
-                                            <div
-                                                className="bg-green-500 h-2.5 rounded-full"
-                                                style={{ width: `${100 - (parseFloat(disk.free) / parseFloat(disk.size) * 100)}%` }}
-                                            ></div>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground text-right">{disk.free} Free</p>
-                                    </div>
-                                ))}
+                                {(() => {
+                                    // Parse disks - could be string or array
+                                    let disksArray: any[] = []
+                                    try {
+                                        if (typeof detailsJson.disks === 'string') {
+                                            disksArray = JSON.parse(detailsJson.disks)
+                                        } else if (Array.isArray(detailsJson.disks)) {
+                                            disksArray = detailsJson.disks
+                                        }
+                                    } catch {
+                                        disksArray = []
+                                    }
+
+                                    if (!Array.isArray(disksArray) || disksArray.length === 0) {
+                                        return <p className="text-muted-foreground col-span-2">No storage data</p>
+                                    }
+
+                                    return disksArray.map((disk: any, idx: number) => {
+                                        const driveName = disk.drive || disk.Name || 'Drive'
+                                        const size = disk.size || disk['Used(GB)'] || '0'
+                                        const free = disk.free || disk['Free(GB)'] || '0'
+                                        const usedPercent = Math.min(100, Math.max(0, 100 - (parseFloat(free) / parseFloat(size) * 100) || 0))
+
+                                        return (
+                                            <div key={idx} className="p-4 border rounded-xl bg-card">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="font-bold text-lg">{driveName}</span>
+                                                    <Badge variant="outline">{size} GB Total</Badge>
+                                                </div>
+                                                <div className="w-full bg-secondary h-2.5 rounded-full mb-1">
+                                                    <div
+                                                        className="bg-green-500 h-2.5 rounded-full"
+                                                        style={{ width: `${usedPercent}%` }}
+                                                    ></div>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground text-right">{free} GB Free</p>
+                                            </div>
+                                        )
+                                    })
+                                })()}
                             </div>
                         </div>
                     )}

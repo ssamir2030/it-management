@@ -357,19 +357,37 @@ export default function AgentDetailsSheet({ agent, open, onOpenChange }: AgentDe
                                 </div>
 
                                 {/* Disks */}
-                                {details.disks && details.disks.length > 0 && (
+                                {details.disks && (
                                     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                                        <h3 className="text-sm font-medium text-slate-400 mb-3">الأقراص</h3>
+                                        <h3 className="text-sm font-medium text-slate-400 mb-3">التخزين</h3>
                                         <div className="space-y-2">
-                                            {details.disks.map((disk: any, i: number) => (
-                                                <div key={i} className="flex items-center justify-between text-sm">
-                                                    <span className="text-slate-300 font-mono">{disk.drive}</span>
-                                                    <div className="flex items-center gap-2 text-xs">
-                                                        <span className="text-slate-500">الحجم: {disk.size}</span>
-                                                        <span className="text-emerald-400">متاح: {disk.free}</span>
+                                            {(() => {
+                                                // Parse disks - could be string or array
+                                                let disksArray: any[] = []
+                                                try {
+                                                    if (typeof details.disks === 'string') {
+                                                        disksArray = JSON.parse(details.disks)
+                                                    } else if (Array.isArray(details.disks)) {
+                                                        disksArray = details.disks
+                                                    }
+                                                } catch {
+                                                    disksArray = []
+                                                }
+
+                                                if (!Array.isArray(disksArray) || disksArray.length === 0) {
+                                                    return <p className="text-slate-500 text-sm">لا توجد بيانات</p>
+                                                }
+
+                                                return disksArray.map((disk: any, i: number) => (
+                                                    <div key={i} className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg">
+                                                        <span className="text-sky-400 font-mono font-bold">{disk.drive || disk.Name || 'Drive'}</span>
+                                                        <div className="flex items-center gap-3 text-xs">
+                                                            <span className="text-slate-400">الحجم: <span className="text-white">{disk.size || disk['Used(GB)'] || '-'} GB</span></span>
+                                                            <span className="text-emerald-400">متاح: <span className="font-bold">{disk.free || disk['Free(GB)'] || '-'} GB</span></span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))
+                                            })()}
                                         </div>
                                     </div>
                                 )}

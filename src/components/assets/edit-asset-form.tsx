@@ -21,9 +21,10 @@ interface EditAssetFormProps {
     asset: any
     employees: any[]
     categories: any[]
+    locations: any[]
 }
 
-export function EditAssetForm({ asset, employees, categories }: EditAssetFormProps) {
+export function EditAssetForm({ asset, employees, categories, locations }: EditAssetFormProps) {
     const router = useRouter()
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
@@ -101,6 +102,7 @@ export function EditAssetForm({ asset, employees, categories }: EditAssetFormPro
                                 </SelectContent>
                             </Select>
                         </div>
+
                     </CardContent>
                 </Card>
 
@@ -158,6 +160,21 @@ export function EditAssetForm({ asset, employees, categories }: EditAssetFormPro
                                                 {cat.nameAr}
                                             </SelectItem>
                                         ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="locationId" className="text-base font-medium">الموقع</Label>
+                            <Select name="locationId" defaultValue={asset.locationId || undefined}>
+                                <SelectTrigger className="h-12 text-base">
+                                    <SelectValue placeholder="اختر الموقع" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {locations.map((loc) => (
+                                        <SelectItem key={loc.id} value={loc.id}>
+                                            {loc.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>

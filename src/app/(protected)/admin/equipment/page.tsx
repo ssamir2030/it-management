@@ -273,8 +273,8 @@ export default function AdminEquipmentPage() {
     return (
         <div className="container mx-auto p-6 space-y-6" dir="rtl">
             <PremiumPageHeader
-                title="إدارة الأجهزة"
-                description="إدارة المخزون وطلبات الحجز المؤقت"
+                title="إدارة حجز الأجهزة"
+                description="إدارة طلبات الأجهزة المتوفرة وطلبات الحجز المؤقت"
                 icon={Laptop}
                 rightContent={
                     <Button onClick={() => {
@@ -290,7 +290,7 @@ export default function AdminEquipmentPage() {
 
             <Tabs defaultValue="inventory" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-                    <TabsTrigger value="inventory">المخزون</TabsTrigger>
+                    <TabsTrigger value="inventory">الأجهزة المتاحة للحجز</TabsTrigger>
                     <TabsTrigger value="bookings">طلبات الحجز</TabsTrigger>
                 </TabsList>
 

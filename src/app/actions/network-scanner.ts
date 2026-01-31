@@ -260,6 +260,7 @@ export async function convertToAsset(deviceId: string, data: any) {
                 storage: details.disks ? JSON.stringify(details.disks) : null, // Store disks in storage or specifications
                 specifications: JSON.stringify(details), // Backup all raw details here
                 ipAddress: device.ipAddress,
+                macAddress: details.mac || null, // MAC Address from agent
             }
         })
 
@@ -274,5 +275,109 @@ export async function convertToAsset(deviceId: string, data: any) {
     } catch (error) {
         console.error("Failed to convert asset:", error)
         return { success: false, error: "Failed to create asset" }
+    }
+}
+
+/**
+ * Sync technical details from DiscoveredDevice to existing Asset
+ * This updates MAC Address, Domain, Workgroup and other technical details
+ */
+export async function syncAssetFromDiscoveredDevice(assetId: string) {
+    const session = await getSession()
+    if (!session) return { success: false, error: "Unauthorized" }
+
+    try {
+        // 1. Get the asset
+        const asset = await prisma.asset.findUnique({
+            where: { id: assetId }
+        })
+
+        if (!asset) {
+            return { success: false, error: "Asset not found" }
+        }
+
+        // 2. Find matching DiscoveredDevice by IP or hostname
+        const device = await prisma.discoveredDevice.findFirst({
+            where: {
+                OR: [
+                    { ipAddress: asset.ipAddress || '' },
+                    { hostname: asset.name }
+                ]
+            },
+            orderBy: { lastSeen: 'desc' }
+        })
+
+        if (!device) {
+            return { success: false, error: "No matching discovered device found" }
+        }
+
+        // 3. Parse device details
+        const details = device.details ? JSON.parse(device.details) : {}
+
+        // 4. Update asset with technical details
+        const updatedAsset = await prisma.asset.update({
+            where: { id: assetId },
+            data: {
+                macAddress: details.mac || asset.macAddress,
+                processor: details.processor || asset.processor,
+                ram: details.ram ? String(details.ram) : asset.ram,
+                operatingSystem: details.os || asset.operatingSystem,
+                storage: details.disks ? JSON.stringify(details.disks) : asset.storage,
+                specifications: JSON.stringify({
+                    ...JSON.parse(asset.specifications || '{}'),
+                    ...details,
+                    syncedAt: new Date().toISOString()
+                })
+            }
+        })
+
+        revalidatePath('/portal/my-assets')
+        revalidatePath('/admin/assets')
+        return { success: true, data: updatedAsset }
+    } catch (error) {
+        console.error("Failed to sync asset:", error)
+        return { success: false, error: "Failed to sync asset data" }
+    }
+}
+
+/**
+ * Sync ALL assets that have matching discovered devices
+ * Useful for bulk update after agent deployment
+ */
+export async function syncAllAssetsFromDiscoveredDevices() {
+    const session = await getSession()
+    if (!session) return { success: false, error: "Unauthorized" }
+
+    try {
+        // Get all assets with IP addresses
+        const assets = await prisma.asset.findMany({
+            where: {
+                ipAddress: { not: null }
+            }
+        })
+
+        let synced = 0
+        let failed = 0
+
+        for (const asset of assets) {
+            const result = await syncAssetFromDiscoveredDevice(asset.id)
+            if (result.success) {
+                synced++
+            } else {
+                failed++
+            }
+        }
+
+        revalidatePath('/portal/my-assets')
+        revalidatePath('/admin/assets')
+        return {
+            success: true,
+            message: `Synced ${synced} assets, ${failed} failed`,
+            synced,
+            failed
+        }
+    } catch (error) {
+        console.error("Failed to sync all assets:", error)
+        return { success: false, error: "Failed to sync assets" }
     }
 }

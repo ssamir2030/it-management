@@ -13,7 +13,8 @@ export async function getDashboardStats() {
             assetsCount,
             inventoryLowStockCount,
             assetGrowth,
-            categoryDistribution
+            categoryDistribution,
+            requestsTrend
         ] = await Promise.all([
             prisma.ticket.count(),
             prisma.ticket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
@@ -51,7 +52,17 @@ export async function getDashboardStats() {
                 _count: {
                     _all: true
                 }
-            })
+            }), // Added comma here and removed extra ')'
+            // Request volume over last 30 days
+            prisma.$queryRaw`
+                SELECT
+                    strftime('%Y-%m-%d', createdAt) as day,
+                    count(*) as count
+                FROM Ticket
+                WHERE createdAt >= date('now', '-30 days')
+                GROUP BY day
+                ORDER BY day ASC
+            `.catch(() => []) as Promise<any>
         ])
 
         // Calculate Completion Rate
@@ -113,6 +124,10 @@ export async function getDashboardStats() {
                 recentRequests,
                 assetGrowth: formattedAssetGrowth,
                 ticketStatus: formattedTicketStatus,
+                requestsTrend: (requestsTrend as any[]).map((r: any) => ({
+                    date: r.day,
+                    count: Number(r.count)
+                })),
                 counts: {
                     tickets: ticketsTotal,
                     users: usersCount,

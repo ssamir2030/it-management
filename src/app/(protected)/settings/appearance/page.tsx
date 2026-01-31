@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 
 import { getSession } from "@/lib/simple-auth"
 import { hasPermission } from "@/lib/rbac"

@@ -128,10 +128,10 @@ export async function updateRequestStatus(
                 userId: session.id as string,
                 userName: adminName,
                 action: 'UPDATE_STATUS',
-                entityType: 'REQUEST',
+                entity: 'REQUEST',
                 entityId: requestId,
                 entityName: `Request #${requestId.slice(-6)}`,
-                changes: { oldStatus: 'UNKNOWN', newStatus: status, note }
+                details: { oldStatus: 'UNKNOWN', newStatus: status, note }
             })
         }
 
@@ -175,10 +175,10 @@ export async function updateRequestStatus(
                         userId: session?.id || 'system',
                         userName: adminName,
                         action: 'ASSIGN',
-                        entityType: 'ASSET',
+                        entity: 'ASSET',
                         entityId: asset.id,
                         entityName: asset.name,
-                        changes: {
+                        details: {
                             newStatus: 'ASSIGNED',
                             employeeId: request.employeeId,
                             requestId
@@ -281,6 +281,7 @@ export async function assignRequest(requestId: string, assigneeName: string, adm
 function getStatusLabel(status: string) {
     switch (status) {
         case 'PENDING': return 'قيد الانتظار'
+        case 'NEEDS_PURCHASE': return 'بانتظار الشراء'
         case 'IN_PROGRESS': return 'قيد التنفيذ'
         case 'COMPLETED': return 'مكتمل'
         case 'REJECTED': return 'مرفوض'
@@ -290,10 +291,11 @@ function getStatusLabel(status: string) {
 }
 
 export async function deleteRequest(requestId: string) {
-    const session = await getSession()
+    const session = await getSession('ADMIN')
 
-    // التحقق من أن المستخدم مدير
-    if (!session || session.role !== 'ADMIN') {
+    // التحقق من أن المستخدم مدير (Admin or Super Admin)
+    const allowedRoles = ['ADMIN', 'SUPER_ADMIN'];
+    if (!session || !allowedRoles.includes(session.role)) {
         return { success: false, error: "غير مصرح لك بحذف الطلبات" }
     }
 
@@ -306,6 +308,16 @@ export async function deleteRequest(requestId: string) {
         // حذف الطلب
         await prisma.employeeRequest.delete({
             where: { id: requestId }
+        })
+
+        // تسجيل العملية في سجل النظام
+        await logAction({
+            userId: session.id,
+            userName: session.name || 'Admin',
+            action: 'DELETE',
+            entity: 'REQUEST',
+            entityId: requestId,
+            entityName: `Request #${requestId.slice(-6)}`
         })
 
         revalidatePath("/requests")

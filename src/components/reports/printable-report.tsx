@@ -53,9 +53,9 @@ export const PrintableReport = React.forwardRef<HTMLDivElement, PrintableReportP
                         <table className="w-full border-collapse text-sm">
                             <thead>
                                 <tr className="bg-primary/5 border-y-2 border-primary/10">
-                                    <th className="p-3 text-right font-bold text-primary w-12">#</th>
+                                    <th className="p-3 text-center font-bold text-primary w-12">#</th>
                                     {columns.map((col, index) => (
-                                        <th key={index} className="p-3 text-right font-bold text-primary">
+                                        <th key={index} className="p-3 text-center font-bold text-primary">
                                             {col.header}
                                         </th>
                                     ))}
@@ -64,9 +64,9 @@ export const PrintableReport = React.forwardRef<HTMLDivElement, PrintableReportP
                             <tbody className="divide-y divide-gray-100">
                                 {data.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="even:bg-gray-50/50 hover:bg-gray-50 transition-colors break-inside-avoid">
-                                        <td className="p-3 text-muted-foreground font-mono text-xs">{rowIndex + 1}</td>
+                                        <td className="p-3 text-muted-foreground font-mono text-xs text-center">{rowIndex + 1}</td>
                                         {columns.map((col, colIndex) => (
-                                            <td key={colIndex} className="p-3 text-gray-700 font-medium">
+                                            <td key={colIndex} className="p-3 text-gray-700 font-medium text-center truncate max-w-[200px]">
                                                 {typeof col.accessor === 'function'
                                                     ? col.accessor(row)
                                                     : row[col.accessor] || '-'}

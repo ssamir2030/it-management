@@ -59,7 +59,7 @@ export async function employeeLogin(identityNumber: string, password: string) {
             userId: employee.id,
             userName: employee.name,
             action: 'LOGIN',
-            entityType: 'EMPLOYEE',
+            entity: 'EMPLOYEE',
             entityId: employee.id,
             entityName: employee.name
         })
@@ -140,16 +140,83 @@ export async function createEmployeeRequest(
     try {
         const expectedCompletionDate = await calculateDueDate(priority)
 
+        // التحقق من توفر الأصناف في المستودع (خاص بطلبات الأحبار والمستهلكات)
+        let finalStatus = 'PENDING';
+        let timelineTitle = 'تم إنشاء الطلب';
+        let timelineDesc = 'تم استلام طلبك وهو قيد المراجعة من قبل فريق تقنية المعلومات';
+
+        if (type === 'CONSUMABLE') {
+            try {
+                const match = details.match(/<!-- DATA: (.*?) -->/);
+                if (match && match[1]) {
+                    const items = JSON.parse(match[1]);
+                    let anyOutOfStock = false;
+
+                    for (const item of items) {
+                        const itemName = item.inkName || item.itemName;
+                        const consumable = await prisma.consumable.findFirst({
+                            where: {
+                                OR: [
+                                    { name: { contains: itemName } },
+                                    { name: { contains: item.modelName || '' } }
+                                ]
+                            }
+                        });
+
+                        if (!consumable || consumable.quantity <= 0) {
+                            anyOutOfStock = true;
+                            break;
+                        }
+                    }
+
+                    if (anyOutOfStock) {
+                        finalStatus = 'NEEDS_PURCHASE';
+                        timelineTitle = 'بانتظار الشراء';
+                        timelineDesc = 'تم تحويل الطلب للمشتريات نظراً لعدم توفر الصنف في المستودع حالياً';
+                    }
+                }
+            } catch (e) {
+                console.error("Stock check error:", e);
+            }
+        }
+
+        // --- Professional Content Formatting ---
+        let finalSubject = subject || `${type} Request`;
+        let professionalDetails = details;
+
+        if (type === 'CONSUMABLE') {
+            const dataMatch = details.match(/<!-- DATA: (.*?) -->/);
+            if (dataMatch) {
+                try {
+                    const items = JSON.parse(dataMatch[1]);
+                    const item = items[0]; // Assuming one item per structured request for now
+
+                    if (item.inkName) {
+                        finalSubject = `طلب حبر: ${item.inkName}${item.modelName ? ` (${item.modelName})` : ''}`;
+                        const userNotes = details.split('<!-- USER_NOTES_START -->')[1]?.split('<!-- DATA:')[0]?.trim() || 'لا توجد ملاحظات';
+                        professionalDetails = `الصنف: ${item.inkName}\nالجهاز: ${item.modelName || 'غير محدد'}\nالكمية: ${item.quantity}\n\nبيان الموظف:\n${userNotes}\n\n<!-- DATA: ${JSON.stringify(items)} -->`;
+                    } else if (item.itemName) {
+                        finalSubject = `طلب ورق: ${item.itemName}`;
+                        const userNotes = details.split('<!-- USER_NOTES_START -->')[1]?.split('<!-- DATA:')[0]?.trim() || 'لا توجد ملاحظات';
+                        professionalDetails = `الصنف: ${item.itemName}\nالكمية: ${item.quantity}\n\nبيان الموظف:\n${userNotes}\n\n<!-- DATA: ${JSON.stringify(items)} -->`;
+                    }
+                } catch (e) {
+                    console.error("Format error:", e);
+                }
+            }
+        }
+        // --- End Formatting ---
+
         const request = await prisma.employeeRequest.create({
             data: {
                 type,
-                details,
-                subject: subject || `${type} Request`,
+                details: professionalDetails,
+                subject: finalSubject,
                 priority,
                 employeeId,
                 expectedCompletionDate,
-                status: 'PENDING',
-                serviceItemId, // Link to Service Catalog
+                status: finalStatus,
+                serviceItemId,
                 attachments: {
                     create: attachments.map(att => ({
                         fileName: att.fileName,
@@ -160,9 +227,9 @@ export async function createEmployeeRequest(
                 },
                 timeline: {
                     create: {
-                        status: 'PENDING',
-                        title: 'تم إنشاء الطلب',
-                        description: 'تم استلام طلبك وهو قيد المراجعة من قبل فريق تقنية المعلومات',
+                        status: finalStatus,
+                        title: timelineTitle,
+                        description: timelineDesc,
                         actorName: 'النظام'
                     }
                 },

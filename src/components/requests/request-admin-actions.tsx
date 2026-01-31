@@ -17,7 +17,7 @@ import { updateRequestStatus, assignRequest } from '@/app/actions/requests'
 import { getAvailableAssets } from '@/app/actions/assets'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { Loader2, CheckCircle, XCircle, PlayCircle, UserPlus, MessageSquare } from "lucide-react"
+import { Loader2, CheckCircle, XCircle, PlayCircle, UserPlus, MessageSquare, ShoppingCart } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -41,7 +41,7 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
     const [note, setNote] = useState('')
     const [assignee, setAssignee] = useState(assignedTo || '')
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [actionType, setActionType] = useState<'REJECT' | 'COMPLETE' | 'UPDATE' | null>(null)
+    const [actionType, setActionType] = useState<'REJECT' | 'COMPLETE' | 'UPDATE' | 'PROCURE' | null>(null)
     const [availableAssets, setAvailableAssets] = useState<any[]>([])
     const [selectedAssetId, setSelectedAssetId] = useState<string>('')
 
@@ -92,7 +92,7 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
         setLoading(false)
     }
 
-    const openDialog = (type: 'REJECT' | 'COMPLETE' | 'UPDATE') => {
+    const openDialog = (type: 'REJECT' | 'COMPLETE' | 'UPDATE' | 'PROCURE') => {
         setActionType(type)
         setIsDialogOpen(true)
         if (type === 'COMPLETE' && isHardwareRequest) {
@@ -121,14 +121,14 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
                         </Button>
                     )}
 
-                    {currentStatus === 'IN_PROGRESS' && (
+                    {(currentStatus === 'IN_PROGRESS' || currentStatus === 'NEEDS_PURCHASE') && (
                         <Button
-                            className="w-full bg-green-600 hover:bg-green-700 gap-2"
+                            className="w-full bg-green-600 hover:bg-green-700 gap-2 font-bold shadow-lg"
                             onClick={() => openDialog('COMPLETE')}
                             disabled={loading}
                         >
-                            <CheckCircle className="h-4 w-4" />
-                            إكمال الطلب
+                            <CheckCircle className="h-5 w-5" />
+                            إكمال وتسليم الطلب
                         </Button>
                     )}
 
@@ -141,6 +141,18 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
                         >
                             <XCircle className="h-4 w-4" />
                             رفض الطلب
+                        </Button>
+                    )}
+
+                    {(currentStatus === 'PENDING' || currentStatus === 'IN_PROGRESS') && (
+                        <Button
+                            variant="outline"
+                            className="w-full gap-2 border-orange-200 text-orange-700 hover:bg-orange-50"
+                            onClick={() => openDialog('PROCURE')}
+                            disabled={loading}
+                        >
+                            <ShoppingCart className="h-4 w-4" />
+                            تحويل للمشتريات (غير متوفر)
                         </Button>
                     )}
 
@@ -186,11 +198,13 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
                             {actionType === 'REJECT' && 'رفض الطلب'}
                             {actionType === 'COMPLETE' && 'إكمال الطلب'}
                             {actionType === 'UPDATE' && 'تحديث الطلب'}
+                            {actionType === 'PROCURE' && 'تحويل لعملية شراء'}
                         </DialogTitle>
                         <DialogDescription>
                             {actionType === 'REJECT' && 'الرجاء ذكر سبب الرفض (سيظهر للموظف).'}
                             {actionType === 'COMPLETE' && 'يمكنك إضافة ملاحظات ختامية.'}
                             {actionType === 'UPDATE' && 'أضف ملاحظة أو تحديث للـ Timeline.'}
+                            {actionType === 'PROCURE' && 'سيتم نقل الطلب إلى طابور المشتريات لعدم توفر الصنف.'}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -234,6 +248,7 @@ export function RequestAdminActions({ requestId, currentStatus, assignedTo, requ
                             onClick={() => {
                                 if (actionType === 'REJECT') handleStatusUpdate('REJECTED')
                                 else if (actionType === 'COMPLETE') handleStatusUpdate('COMPLETED')
+                                else if (actionType === 'PROCURE') handleStatusUpdate('NEEDS_PURCHASE')
                                 else if (actionType === 'UPDATE') handleStatusUpdate(currentStatus)
                             }}
                             disabled={loading}

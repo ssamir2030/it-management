@@ -1,48 +1,212 @@
 @media print {
 
     /* Hide non-printable elements */
-    .print\\:hidden {
+    .print\:hidden,
+    nav,
+    .sidebar,
+    header,
+    footer,
+    button,
+    .no-print {
         display: none !important;
     }
 
+    /* Show only printable elements */
+    .print\:show {
+        display: block !important;
+    }
+
     /* Remove shadows and borders for print */
-    .print\\:border-0 {
+    .print\:border-0 {
         border: 0 !important;
     }
 
-    .print\\:shadow-none {
+    .print\:shadow-none {
         box-shadow: none !important;
     }
 
     /* Ensure proper page breaks */
     @page {
         size: A4;
-        margin: 2cm;
+        margin: 1.5cm;
     }
 
     /* Prevent page breaks inside elements */
     table,
     figure,
-    img {
+    img,
+    .card,
+    .asset-card {
         page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Force page break before */
+    .print-page-break {
+        page-break-before: always;
     }
 
     /* Adjust colors for print */
     body {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
-    }
-
-    /* Hide navigation, headers, and footers */
-    header,
-    nav,
-    .sidebar {
-        display: none !important;
+        background: white !important;
+        color: black !important;
     }
 
     /* Make sure content fills the page */
-    .container {
-        max-width: 100%;
-        padding: 0;
+    .container,
+    main,
+    [class*="max-w-"] {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Reset dark mode colors for print */
+    .dark *,
+    [class*="dark:"] {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    /* ========================================
+       MY ASSETS PAGE - PRINT STYLES
+       ======================================== */
+
+    /* Summary stats - horizontal layout */
+    .grid.gap-4.md\:grid-cols-4 {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+    }
+
+    .grid.gap-4.md\:grid-cols-4>* {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    /* Asset cards */
+    .grid.gap-6>* {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Hide gradients and use solid backgrounds */
+    [class*="bg-gradient"] {
+        background: #f8f9fa !important;
+    }
+
+    /* Premium header - simplified for print */
+    [class*="PremiumPageHeader"],
+    .premium-header {
+        background: #1a365d !important;
+        color: white !important;
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Cards styling for print */
+    [class*="Card"],
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        background: white !important;
+        border-radius: 4px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* Technical specs table */
+    .bg-slate-50,
+    .bg-slate-100\/50,
+    [class*="bg-slate-"] {
+        background: #f5f5f5 !important;
+    }
+
+    /* Storage section */
+    .bg-white.dark\:bg-slate-800 {
+        background: white !important;
+        border: 1px solid #ddd !important;
+    }
+
+    /* Progress bar for storage */
+    .bg-gradient-to-r.from-blue-500.to-blue-600 {
+        background: #3b82f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Badge colors */
+    .bg-green-100 {
+        background: #dcfce7 !important;
+        color: #15803d !important;
+    }
+
+    .bg-blue-100 {
+        background: #dbeafe !important;
+        color: #1d4ed8 !important;
+    }
+
+    .bg-red-100 {
+        background: #fee2e2 !important;
+        color: #dc2626 !important;
+    }
+
+    /* Text colors for print */
+    .text-primary {
+        color: #3b82f6 !important;
+    }
+
+    .text-emerald-600 {
+        color: #059669 !important;
+    }
+
+    .text-muted-foreground {
+        color: #6b7280 !important;
+    }
+
+    /* Icon containers */
+    .rounded-xl[class*="bg-"] {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Flex layout adjustments */
+    .flex.flex-col.md\:flex-row {
+        display: flex !important;
+        flex-direction: row !important;
+    }
+
+    .w-full.md\:w-48 {
+        width: 100px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Grid adjustments for technical specs */
+    .grid.grid-cols-1.md\:grid-cols-2 {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Icons - ensure they print */
+    svg {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Links - show as text */
+    a {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    /* Hide action buttons */
+    [class*="AssetActions"],
+    .asset-actions {
+        display: none !important;
     }
 }

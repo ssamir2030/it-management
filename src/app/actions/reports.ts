@@ -210,18 +210,34 @@ export async function generateReportData(type: ReportType, filters: any = {}) {
                 status: i.quantity <= i.minQuantity ? 'منخفض' : 'متوفر'
             }))
         } else if (type === 'CONSUMABLE_USAGE') {
-            // ... (Existing Usage Logic)
+            // 1. Get explicit transactions
             const transactions = await prisma.consumableTransaction.findMany({
                 where: {
-                    type: { in: ['OUT', 'DISPENSE', 'USAGE'] } // Assuming these are the types for usage
+                    type: { in: ['OUT', 'DISPENSE', 'USAGE'] }
                 },
                 include: {
-                    consumable: true,
+                    consumable: {
+                        include: { category: true }
+                    },
                     employee: {
                         include: { department: true }
                     }
                 },
                 orderBy: { createdAt: 'desc' }
+            })
+
+            // 2. Get completed consumable requests (as fallback)
+            const completedRequests = await prisma.employeeRequest.findMany({
+                where: {
+                    type: 'CONSUMABLE',
+                    status: 'COMPLETED'
+                },
+                include: {
+                    employee: {
+                        include: { department: true }
+                    }
+                },
+                orderBy: { completedAt: 'desc' }
             })
 
             columns = [
@@ -230,17 +246,129 @@ export async function generateReportData(type: ReportType, filters: any = {}) {
                 { key: 'departmentName', label: 'القسم' },
                 { key: 'consumableName', label: 'المادة' },
                 { key: 'quantity', label: 'الكمية المستهلكة' },
-                { key: 'notes', label: 'ملاحظات' }
+                { key: 'notes', label: 'ملاحظات / رقم الطلب' }
             ]
 
-            data = transactions.map(t => ({
-                date: t.createdAt.toISOString().split('T')[0],
-                employeeName: t.employee?.name || '-',
-                departmentName: t.employee?.department?.name || '-',
-                consumableName: t.consumable.name,
-                quantity: t.quantity,
-                notes: t.notes || '-'
-            }))
+            const txData = transactions.map(t => {
+                const name = t.consumable.name || "";
+                const categoryName = (t.consumable.category?.name || "").toLowerCase();
+
+                let prefix = "";
+                if (categoryName.includes("حبر") || categoryName.includes("أحبار") || categoryName.includes("ink") || categoryName.includes("toner") || name.toLowerCase().includes("ink")) {
+                    prefix = "حبر: ";
+                } else if (categoryName.includes("ورق") || categoryName.includes("أوراق") || categoryName.includes("paper")) {
+                    prefix = "ورق: ";
+                }
+
+                return {
+                    date: t.createdAt.toISOString().split('T')[0],
+                    employeeName: t.employee?.name || '-',
+                    departmentName: t.employee?.department?.name || '-',
+                    consumableName: `${prefix}${name}`,
+                    quantity: t.quantity,
+                    notes: t.notes || '-'
+                }
+            })
+
+            const reqData = completedRequests
+                .filter(req => {
+                    // Avoid duplicates if transaction already exists for this request
+                    const requestIdSuffix = req.id.slice(-6);
+                    return !txData.some(tx => tx.notes.includes(`#${requestIdSuffix}`));
+                })
+                .map(req => {
+                    let itemName = req.subject || "طلب مستهلكات"
+                    let qty = 1
+
+                    // Try to parse metadata if exists
+                    const jsonMatch = req.details?.match(/<!-- DATA: (.*?) -->/)
+                    if (jsonMatch && jsonMatch[1]) {
+                        try {
+                            const items = JSON.parse(jsonMatch[1])
+
+                            // Grouping Logic for Inks
+                            const models = items
+                                .map((i: any) => i.modelName)
+                                .filter((v: any, i: any, a: any) => v && a.indexOf(v) === i) as string[]
+
+                            if (models.length === 1 && items.length > 1) {
+                                // Multiple items for SAME model -> Set
+                                itemName = `حبر: طقم أحبار ${models[0]}`
+                            } else {
+                                // Standard mapping with prefix
+                                itemName = items.map((i: any) => {
+                                    const name = i.inkName || i.itemName || "صنف غير معروف";
+                                    const model = i.modelName ? ` (${i.modelName})` : "";
+                                    const itemPrefix = (i.inkName || name.includes("حبر")) ? "حبر: " : name.includes("ورق") ? "ورق: " : "";
+                                    return `${itemPrefix}${name}${model}`;
+                                }).join(' | ')
+                            }
+
+                            qty = items.reduce((sum: number, i: any) => sum + (i.quantity || 1), 0)
+                        } catch (e) { }
+                    } else if (req.details) {
+                        // Fallback: Parse from formatted text
+                        // Format 1 (Single Item Professional): الصنف: [Name]\nالجهاز: [Model]\nالكمية: [Qty]
+                        const nameMatch = req.details.match(/الصنف:\s*(.*)/);
+                        const modelMatch = req.details.match(/الجهاز:\s*(.*)/);
+                        const qtyMatch = req.details.match(/الكمية:\s*(\d+)/);
+
+                        if (nameMatch) {
+                            const name = nameMatch[1].trim();
+                            const model = modelMatch ? ` (${modelMatch[1].trim()})` : "";
+                            const prefix = (name.includes("حبر") || model.includes("حبر")) ? "حبر: " : name.includes("ورق") ? "ورق: " : "";
+                            itemName = `${prefix}${name}${model}`;
+                            qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
+                        } else {
+                            // Format 2 (Bulleted List/Old): 1. [Name] (الكمية: [Qty])\n- الطابعة: [Model]
+                            const lines = req.details.split('\n');
+                            const extractedItems: string[] = [];
+                            let totalQty = 0;
+
+                            for (let i = 0; i < lines.length; i++) {
+                                const line = lines[i];
+                                const itemMatch = line.match(/^\d+\.\s*(.*?)\s*\(الكمية:\s*(\d+)\)/);
+                                if (itemMatch) {
+                                    const name = itemMatch[1].trim();
+                                    const q = parseInt(itemMatch[2]);
+                                    totalQty += q;
+
+                                    // Look for printer model on next line
+                                    let model = "";
+                                    if (i + 1 < lines.length && lines[i + 1].includes("الطابعة:")) {
+                                        const mMatch = lines[i + 1].match(/الطابعة:\s*([^|]*)/);
+                                        if (mMatch) model = ` (${mMatch[1].trim()})`;
+                                    }
+                                    const prefix = (name.includes("حبر") || model.includes("حبر")) ? "حبر: " : name.includes("ورق") ? "ورق: " : "";
+                                    extractedItems.push(`${prefix}${name}${model}`);
+                                }
+                            }
+
+                            if (extractedItems.length > 0) {
+                                itemName = extractedItems.join(' | ');
+                                qty = totalQty;
+                            }
+                        }
+                    }
+
+                    // Post-processing for Sets (Robost check for |)
+                    if (itemName.includes('|')) {
+                        const modelMatch = itemName.match(/([a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)?)/);
+                        const model = modelMatch ? modelMatch[0].trim() : "";
+                        itemName = `حبر: طقم أحبار ${model}`.trim();
+                    }
+
+                    return {
+                        date: req.completedAt ? req.completedAt.toISOString().split('T')[0] : req.updatedAt.toISOString().split('T')[0],
+                        employeeName: req.employee?.name || '-',
+                        departmentName: req.employee?.department?.name || '-',
+                        consumableName: itemName,
+                        quantity: qty,
+                        notes: `طلب رقم #${req.id.slice(-6)}`
+                    }
+                })
+
+            data = [...txData, ...reqData]
         } else if (type === 'LICENSES') {
             // ... (Existing Licenses Logic)
             const licenses = await prisma.license.findMany()
