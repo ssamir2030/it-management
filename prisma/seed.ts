@@ -12,10 +12,12 @@ async function main() {
         where: { email: 'admin@system.com' },
         update: {},
         create: {
+            id: crypto.randomUUID(),
             email: 'admin@system.com',
             name: 'مدير النظام',
             password,
             role: 'ADMIN',
+            updatedAt: new Date()
         },
     })
     console.log('Created Admin User:', admin.email)
@@ -26,7 +28,7 @@ async function main() {
         await prisma.department.upsert({
             where: { name: dept },
             update: {},
-            create: { name: dept, description: `قسم ${dept}` },
+            create: { id: crypto.randomUUID(), name: dept, description: `قسم ${dept}`, updatedAt: new Date() },
         })
     }
     console.log('Created Departments')
@@ -37,7 +39,7 @@ async function main() {
         const existing = await prisma.location.findFirst({ where: { name: loc } })
         if (!existing) {
             await prisma.location.create({
-                data: { name: loc, address: 'المملكة العربية السعودية' },
+                data: { id: crypto.randomUUID(), name: loc, address: 'المملكة العربية السعودية', updatedAt: new Date() },
             })
         }
     }
@@ -46,9 +48,9 @@ async function main() {
     // 4. Create Suppliers
     const suppliers = await prisma.supplier.createMany({
         data: [
-            { name: 'Jarir Bookstore', email: 'b2b@jarir.com', phone: '920000000' },
-            { name: 'Extra Stores', email: 'sales@extra.com' },
-            { name: 'Microsoft Arabia', email: 'support@microsoft.com' },
+            { id: crypto.randomUUID(), name: 'Jarir Bookstore', email: 'b2b@jarir.com', phone: '920000000', updatedAt: new Date() },
+            { id: crypto.randomUUID(), name: 'Extra Stores', email: 'sales@extra.com', updatedAt: new Date() },
+            { id: crypto.randomUUID(), name: 'Microsoft Arabia', email: 'support@microsoft.com', updatedAt: new Date() },
         ],
         skipDuplicates: true,
     })
