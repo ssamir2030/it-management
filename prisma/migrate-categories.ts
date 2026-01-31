@@ -25,9 +25,11 @@ async function main() {
             // Create it
             existing = await prisma.assetCategory.create({
                 data: {
+                    id: crypto.randomUUID(),
                     nameAr: cat.nameAr,
                     nameEn: cat.nameEn,
-                    type: cat.type
+                    type: cat.type,
+                    updatedAt: new Date()
                 }
             })
             console.log(`Created Main Category: ${cat.nameEn}`)
