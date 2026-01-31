@@ -9,13 +9,13 @@ async function main() {
     // 1. Verify Asset Types (4-Tier)
     console.log('📦 Verifying 4-Tier Asset Types:')
     const categories = await prisma.assetCategory.findMany({
-        include: { _count: { select: { assets: true, accessories: true } } }
+        include: { _count: { select: { Asset: true, Accessory: true } } }
     })
     console.table(categories.map(c => ({
         Name: c.nameEn,
         Type: c.type,
-        Assets: c._count.assets,
-        Accessories: c._count.accessories
+        Assets: c._count.Asset,
+        Accessories: c._count.Accessory
     })))
 
     // 2. Verify Data Seeding (Snipe-IT Features)
